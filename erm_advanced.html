@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Risk Management - Advanced Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- External Libraries -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1/dist/chartjs-chart-matrix.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.42.3/docxtemplater.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.6/pizzip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--gray-100);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(6, 182, 212, 0.1));
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab:hover {
+            background: rgba(37, 99, 235, 0.2);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section h2 {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .card h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--gray-300);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--gray-700), var(--gray-800));
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        input[type="file"],
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            color: var(--gray-300);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+        }
+
+        .data-table th {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .badge-high {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+        }
+
+        .badge-medium {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+        }
+
+        .badge-low {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Enterprise Risk Management - Advanced Platform</h1>
+            <p>Complete audit automation with visualization, templates, and reporting</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('workflow')">📊 Workflow</div>
+            <div class="tab" onclick="switchTab('analytics')">📈 Analytics Dashboard</div>
+            <div class="tab" onclick="switchTab('templates')">📄 Templates & Import</div>
+            <div class="tab" onclick="switchTab('reports')">📝 Report Generator</div>
+            <div class="tab" onclick="switchTab('collaboration')">👥 Collaboration</div>
+        </div>
+
+        <!-- Tab 1: Workflow (Existing Integrated Workflow) -->
+        <div id="workflow" class="tab-content active">
+            <div class="alert alert-info">
+                <strong>Integrated Workflow:</strong> Import risks and controls, generate RCM, create audit programs and
+                observations. See Templates tab for standardized import.
+            </div>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="stat-value" id="riskCount">0</div>
+                    <div class="stat-label">Total Risks</div>
+                </div>
+                <div class="card">
+                    <div class="stat-value" id="controlCount">0</div>
+                    <div class="stat-label">Total Controls</div>
+                </div>
+                <div class="card">
+                    <div class="stat-value" id="rcmCount">0</div>
+                    <div class="stat-label">RCM Entries</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="section-icon">⚠️</span> Quick Upload</h2>
+                <div class="grid-2">
+                    <div>
+                        <label>Upload Risk Data (CSV/Excel):</label>
+                        <input type="file" id="quickRiskUpload" accept=".csv,.xlsx">
+                        <button class="btn" onclick="loadSampleData()">Load Sample Data</button>
+                    </div>
+                    <div>
+                        <label>Upload Control Data (CSV/Excel):</label>
+                        <input type="file" id="quickControlUpload" accept=".csv,.xlsx">
+                        <button class="btn btn-success" onclick="generateAll()">Generate RCM + Audit Program</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Analytics Dashboard -->
+        <div id="analytics" class="tab-content">
+            <div class="section">
+                <h2><span class="section-icon">🔥</span> Risk Heat Map</h2>
+                <div class="alert alert-info">
+                    Visual representation of risk landscape by Likelihood × Impact
+                </div>
+                <div class="chart-container" style="height: 500px;">
+                    <canvas id="heatMapChart"></canvas>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="section">
+                    <h2><span class="section-icon">📊</span> Risk Distribution</h2>
+                    <div class="chart-container">
+                        <canvas id="riskCategoryChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2><span class="section-icon">🎯</span> Control Coverage</h2>
+                    <div class="chart-container">
+                        <canvas id="controlCoverageChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="section">
+                    <h2><span class="section-icon">⚡</span> Risk Ratings</h2>
+                    <div class="chart-container">
+                        <canvas id="riskRatingChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2><span class="section-icon">🛡️</span> Control Types</h2>
+                    <div class="chart-container">
+                        <canvas id="controlTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Templates & Import -->
+        <div id="templates" class="tab-content">
+            <div class="section">
+                <h2><span class="section-icon">📄</span> Download Standardized Templates</h2>
+                <div class="alert alert-info">
+                    Download pre-formatted templates with validation and instructions. Fill them out and upload for
+                    error-free import.
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>📋 Risk Template</h3>
+                        <p style="color: var(--gray-300); margin-bottom: 1rem;">
+                            Standardized format with columns: Risk_ID, Risk_Event, Category, Likelihood, Impact,
+                            Description, Owner
+                        </p>
+                        <button class="btn" onclick="downloadTemplate('risks')">Download Risk Template (CSV)</button>
+                        <button class="btn btn-secondary" onclick="downloadTemplateExcel('risks')">Download Excel
+                            Template</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>🎯 Control Template</h3>
+                        <p style="color: var(--gray-300); margin-bottom: 1rem;">
+                            Standardized format with columns: Control_ID, Description, Type, Frequency, Owner,
+                            Risk_Addressed
+                        </p>
+                        <button class="btn" onclick="downloadTemplate('controls')">Download Control Template
+                            (CSV)</button>
+                        <button class="btn btn-secondary" onclick="downloadTemplateExcel('controls')">Download Excel
+                            Template</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="section-icon">📥</span> Import with Validation</h2>
+                <div class="grid-2">
+                    <div>
+                        <label>Upload Completed Risk Template:</label>
+                        <input type="file" id="templateRiskUpload" accept=".csv,.xlsx">
+                        <div id="riskValidation"></div>
+                    </div>
+                    <div>
+                        <label>Upload Completed Control Template:</label>
+                        <input type="file" id="templateControlUpload" accept=".csv,.xlsx">
+                        <div id="controlValidation"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Report Generator -->
+        <div id="reports" class="tab-content">
+            <div class="section">
+                <h2><span class="section-icon">📝</span> Audit Report Generator</h2>
+                <div class="alert alert-info">
+                    Generate professional audit reports from your findings data. Reports include executive summary,
+                    detailed findings, and appendices.
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Report Configuration</h3>
+                        <label>Audit Name:</label>
+                        <input type="text" id="auditName" placeholder="Q4 2025 Procurement Audit">
+
+                        <label>Auditor Name:</label>
+                        <input type="text" id="auditorName" placeholder="Your Name">
+
+                        <label>Report Date:</label>
+                        <input type="text" id="reportDate" value="2025-12-23">
+
+                        <label>Include Sections:</label>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: inline-flex; align-items: center; margin-right: 1rem;">
+                                <input type="checkbox" id="includeExecSummary" checked
+                                    style="width: auto; margin-right: 0.5rem;"> Executive Summary
+                            </label>
+                            <label style="display: inline-flex; align-items: center; margin-right: 1rem;">
+                                <input type="checkbox" id="includeFindings" checked
+                                    style="width: auto; margin-right: 0.5rem;"> Detailed Findings
+                            </label>
+                            <label style="display: inline-flex; align-items: center;">
+                                <input type="checkbox" id="includeAppendix" checked
+                                    style="width: auto; margin-right: 0.5rem;"> Appendices
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Report Preview</h3>
+                        <div id="reportPreview" style="color: var(--gray-300); font-size: 0.9rem;">
+                            Configure report settings and click "Generate Report" to create a Word document.
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="generateAuditReport()">📄 Generate Word Report</button>
+                <button class="btn btn-secondary" onclick="exportReportHTML()">🌐 Export HTML Report</button>
+            </div>
+        </div>
+
+        <!-- Tab 5: Collaboration -->
+        <div id="collaboration" class="tab-content">
+            <div class="section">
+                <h2><span class="section-icon">👥</span> Project Management & Collaboration</h2>
+                <div class="alert alert-info">
+                    Export your complete project for sharing, backup, or collaboration. Import shared projects to
+                    continue work.
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Project Information</h3>
+                        <label>Project Name:</label>
+                        <input type="text" id="projectName" placeholder="Q4 2025 Audit Project">
+
+                        <label>Project Owner:</label>
+                        <input type="text" id="projectOwner" placeholder="your.email@company.com">
+
+                        <label>status:</label>
+                        <select id="projectStatus">
+                            <option>Planning</option>
+                            <option>In Progress</option>
+                            <option>Review</option>
+                            <option>Completed</option>
+                        </select>
+
+                        <button class="btn btn-success" onclick="exportProject()">💾 Export Project (.erm file)</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>Import Shared Project</h3>
+                        <label>Upload Project File (.erm or .json):</label>
+                        <input type="file" id="projectImport" accept=".erm,.json">
+                        <button class="btn" onclick="importProject()">📥 Import Project</button>
+
+                        <div id="projectInfo" style="margin-top: 1rem; font-size: 0.9rem; color: var(--gray-300);">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="section-icon">💬</span> Comments & Reviews</h2>
+                <div id="commentsContainer">
+                    <p style="color: var(--gray-300);">No comments yet. Add comments to risks, controls, or findings for
+                        team collaboration.</p>
+                </div>
+                <button class="btn" onclick="addComment()">Add Comment</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global data storage
+        const dataManager = {
+            risks: [],
+            controls: [],
+            rcm: [],
+            auditProgram: [],
+            pol: [],
+            comments: [],
+            project: {
+                name: '',
+                owner: '',
+                status: 'Planning',
+                created: new Date().toISOString(),
+                version: '1.0'
+            }
+        };
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+
+            // Render charts when switching to analytics
+            if (tabName === 'analytics') {
+                setTimeout(renderAllCharts, 100);
+            }
+        }
+
+        // Load sample data
+        function loadSampleData() {
+            dataManager.risks = [
+                { Risk_ID: 'RISK-001', Risk_Event: 'Unauthorized purchases', Category: 'Operational', Likelihood: 'Possible', Impact: 'Major', Risk_Score: 12, Risk_Rating: 'High' },
+                { Risk_ID: 'RISK-002', Risk_Event: 'Duplicate payments', Category: 'Financial', Likelihood: 'Unlikely', Impact: 'Moderate', Risk_Score: 6, Risk_Rating: 'Medium' },
+                { Risk_ID: 'RISK-003', Risk_Event: 'Vendor fraud', Category: 'Financial', Likelihood: 'Possible', Impact: 'Catastrophic', Risk_Score: 15, Risk_Rating: 'Critical' },
+                { Risk_ID: 'RISK-004', Risk_Event: 'Data breach', Category: 'IT Security', Likelihood: 'Likely', Impact: 'Major', Risk_Score: 16, Risk_Rating: 'Critical' },
+                { Risk_ID: 'RISK-005', Risk_Event: 'Regulatory non-compliance', Category: 'Compliance', Likelihood: 'Possible', Impact: 'Major', Risk_Score: 12, Risk_Rating: 'High' },
+            ];
+
+            dataManager.controls = [
+                { Control_ID: 'CTRL-001', Description: 'Purchase approval workflow', Type: 'Preventive', Frequency: 'Continuous', Owner: 'Procurement' },
+                { Control_ID: 'CTRL-002', Description: '3-way match', Type: 'Detective', Frequency: 'Per transaction', Owner: 'AP' },
+                { Control_ID: 'CTRL-003', Description: 'MFA authentication', Type: 'Preventive', Frequency: 'Continuous', Owner: 'IT Security' },
+            ];
+
+            updateStats();
+            alert('Sample data loaded! Switch to Analytics to see visualizations.');
+        }
+
+        function updateStats() {
+            document.getElementById('riskCount').textContent = dataManager.risks.length;
+            document.getElementById('controlCount').textContent = dataManager.controls.length;
+            document.getElementById('rcmCount').textContent = dataManager.rcm.length;
+        }
+
+        // Template download functions
+        function downloadTemplate(type) {
+            const link = document.createElement('a');
+            link.href = `template_${type}.csv`;
+            link.download = `ERM_${type}_template.csv`;
+            link.click();
+        }
+
+        function downloadTemplateExcel(type) {
+            const wb = XLSX.utils.book_new();
+
+            if (type === 'risks') {
+                const data = [
+                    ['Risk_ID', 'Risk_Event', 'Category', 'Likelihood', 'Impact', 'Description', 'Existing_Controls', 'Risk_Owner'],
+                    ['EXAMPLE-001', 'Example risk - delete this row', 'Operational', 'Possible', 'Major', 'Description here', 'Controls', 'Owner'],
+                    [],
+                    ['INSTRUCTIONS:'],
+                    ['1. Delete the example row'],
+                    ['2. Fill in your data starting from row 6'],
+                    ['3. Category: Operational, Financial, Compliance, IT Security, Strategic'],
+                    ['4. Likelihood: Rare, Unlikely, Possible, Likely, Almost Certain'],
+                    ['5. Impact: Insignificant, Minor, Moderate, Major, Catastrophic']
+                ];
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                XLSX.utils.book_append_sheet(wb, ws, 'Risk Template');
+            } else {
+                const data = [
+                    ['Control_ID', 'Description', 'Type', 'Frequency', 'Owner', 'Risk_Addressed'],
+                    ['EXAMPLE-CTL-001', 'Example control - delete this row', 'Preventive', 'Monthly', 'Owner', 'RISK-001;RISK-002'],
+                    [],
+                    ['INSTRUCTIONS:'],
+                    ['1. Delete the example row'],
+                    ['2. Fill in your data starting from row 6'],
+                    ['3. Type: Preventive, Detective, Corrective'],
+                    ['4. Frequency: Continuous, Daily, Weekly, Monthly, Quarterly, Annually'],
+                    ['5. Risk_Addressed: Use semicolons to separate multiple Risk IDs']
+                ];
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                XLSX.utils.book_append_sheet(wb, ws, 'Control Template');
+            }
+
+            XLSX.writeFile(wb, `ERM_${type}_template.xlsx`);
+        }
+
+        // Chart rendering
+        let charts = {};
+
+        function renderAllCharts() {
+            if (dataManager.risks.length === 0) {
+                alert('Please load sample data first (Workflow tab)');
+                return;
+            }
+
+            renderHeatMap();
+            renderRiskCategory();
+            renderControlCoverage();
+            renderRiskRating();
+            renderControlType();
+        }
+
+        function renderHeatMap() {
+            const ctx = document.getElementById('heatMapChart').getContext('2d');
+
+            // Destroy existing chart
+            if (charts.heatMap) charts.heatMap.destroy();
+
+            // Calculate risk distribution in matrix
+            const matrix = [];
+            const likelihoodValues = ['Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain'];
+            const impactValues = ['Insignificant', 'Minor', 'Moderate', 'Major', 'Catastrophic'];
+
+            impactValues.forEach((impact, i) => {
+                likelihoodValues.forEach((likelihood, j) => {
+                    const count = dataManager.risks.filter(r =>
+                        r.Likelihood === likelihood && r.Impact === impact
+                    ).length;
+
+                    matrix.push({
+                        x: likelihood,
+                        y: impact,
+                        v: count
+                    });
+                });
+            });
+
+            charts.heatMap = new Chart(ctx, {
+                type: 'matrix',
+                data: {
+                    datasets: [{
+                        label: 'Risk Count',
+                        data: matrix,
+                        backgroundColor(c) {
+                            const value = c.dataset.data[c.dataIndex].v;
+                            const alpha = value > 0 ? 0.3 + (value * 0.2) : 0;
+                            const score = (likelihoodValues.indexOf(c.dataset.data[c.dataIndex].x) + 1) *
+                                (impactValues.indexOf(c.dataset.data[c.dataIndex].y) + 1);
+
+                            if (score >= 15) return `rgba(239, 68, 68, ${alpha})`;
+                            if (score >= 10) return `rgba(245, 158, 11, ${alpha})`;
+                            if (score >= 5) return `rgba(59, 130, 246, ${alpha})`;
+                            return `rgba(16, 185, 129, ${alpha})`;
+                        },
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                        width: ({ chart }) => (chart.chartArea || {}).width / 5 - 1,
+                        height: ({ chart }) => (chart.chartArea || {}).height / 5 - 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title() { return ''; },
+                                label(context) {
+                                    const v = context.dataset.data[context.dataIndex];
+                                    return `${v.x} × ${v.y}: ${v.v} risk(s)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'category',
+                            labels: likelihoodValues,
+                            grid: { display: false },
+                            title: { display: true, text: 'Likelihood', color: '#cbd5e1' },
+                            ticks: { color: '#cbd5e1' }
+                        },
+                        y: {
+                            type: 'category',
+                            labels: impactValues,
+                            grid: { display: false },
+                            title: { display: true, text: 'Impact', color: '#cbd5e1' },
+                            ticks: { color: '#cbd5e1' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderRiskCategory() {
+            const ctx = document.getElementById('riskCategoryChart').getContext('2d');
+            if (charts.category) charts.category.destroy();
+
+            const categories = {};
+            dataManager.risks.forEach(r => {
+                categories[r.Category] = (categories[r.Category] || 0) + 1;
+            });
+
+            charts.category = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(categories),
+                    datasets: [{
+                        data: Object.values(categories),
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.8)',
+                            'rgba(6, 182, 212, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(239, 68, 68, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#cbd5e1' } }
+                    }
+                }
+            });
+        }
+
+        function renderControlCoverage() {
+            const ctx = document.getElementById('controlCoverageChart').getContext('2d');
+            if (charts.coverage) charts.coverage.destroy();
+
+            const covered = dataManager.rcm.filter(r => r.Control_ID !== 'NO CONTROL').length;
+            const gaps = dataManager.rcm.filter(r => r.Control_ID === 'NO CONTROL').length;
+
+            charts.coverage = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Covered Risks', 'Control Gaps'],
+                    datasets: [{
+                        data: [covered || 1, gaps || 1],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(239, 68, 68, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#cbd5e1' } }
+                    }
+                }
+            });
+        }
+
+        function renderRiskRating() {
+            const ctx = document.getElementById('riskRatingChart').getContext('2d');
+            if (charts.rating) charts.rating.destroy();
+
+            const ratings = { Critical: 0, High: 0, Medium: 0, Low: 0 };
+            dataManager.risks.forEach(r => {
+                ratings[r.Risk_Rating] = (ratings[r.Risk_Rating] || 0) + 1;
+            });
+
+            charts.rating = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ratings),
+                    datasets: [{
+                        label: 'Number of Risks',
+                        data: Object.values(ratings),
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#cbd5e1' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#cbd5e1' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderControlType() {
+            const ctx = document.getElementById('controlTypeChart').getContext('2d');
+            if (charts.controlType) charts.controlType.destroy();
+
+            const types = {};
+            dataManager.controls.forEach(c => {
+                types[c.Type] = (types[c.Type] || 0) + 1;
+            });
+
+            charts.controlType = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(types),
+                    datasets: [{
+                        label: 'Number of Controls',
+                        data: Object.values(types),
+                        backgroundColor: 'rgba(6, 182, 212, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#cbd5e1' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#cbd5e1' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Report generation
+        function generateAuditReport() {
+            const auditName = document.getElementById('auditName').value || 'Audit Report';
+            const auditorName = document.getElementById('auditorName').value || 'Auditor';
+            const reportDate = document.getElementById('reportDate').value;
+
+            let htmlContent = `
+                <html>
+                <head>
+                    <title>${auditName}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 40px; }
+                        h1 { color: #2563eb; }
+                        h2 { color: #0f172a; border-bottom: 2px solid #2563eb; padding-bottom: 5px; }
+                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+                        th { background-color: #2563eb; color: white; }
+                        .critical { background-color: #fee2e2; }
+                        .high { background-color: #fed7aa; }
+                    </style>
+                </head>
+                <body>
+                    <h1>${auditName}</h1>
+                    <p><strong>Date:</strong> ${reportDate}</p>
+                    <p><strong>Auditor:</strong> ${auditorName}</p>
+                    
+                    <h2>Executive Summary</h2>
+                    <p>Total Risks Assessed: ${dataManager.risks.length}</p>
+                    <p>Total Controls Evaluated: ${dataManager.controls.length}</p>
+                    <p>Critical/High Risks: ${dataManager.risks.filter(r => r.Risk_Rating === 'Critical' || r.Risk_Rating === 'High').length}</p>
+                    
+                    <h2>Risk Assessment Summary</h2>
+                    <table>
+                        <tr><th>Risk ID</th><th>Description</th><th>Category</th><th>Rating</th></tr>
+            `;
+
+            dataManager.risks.forEach(risk => {
+                const rowClass = risk.Risk_Rating === 'Critical' || risk.Risk_Rating === 'High' ? 'class="' + risk.Risk_Rating.toLowerCase() + '"' : '';
+                htmlContent += `
+                    <tr ${rowClass}>
+                        <td>${risk.Risk_ID}</td>
+                        <td>${risk.Risk_Event}</td>
+                        <td>${risk.Category}</td>
+                        <td>${risk.Risk_Rating}</td>
+                    </tr>
+                `;
+            });
+
+            htmlContent += `
+                    </table>
+                    
+                    <h2>Conclusion</h2>
+                    <p>This audit assessed ${dataManager.risks.length} risks across various categories. 
+                    Recommendations have been provided to strengthen the control environment.</p>
+                </body>
+                </html>
+            `;
+
+            // Download as HTML
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${auditName.replace(/\s+/g, '_')}_Report.html`;
+            link.click();
+
+            alert('Report generated and downloaded as HTML!');
+        }
+
+        function exportReportHTML() {
+            generateAuditReport();
+        }
+
+        // Project export/import
+        function exportProject() {
+            dataManager.project.name = document.getElementById('projectName').value || 'ERM Project';
+            dataManager.project.owner = document.getElementById('projectOwner').value || 'user@company.com';
+            dataManager.project.status = document.getElementById('projectStatus').value;
+            dataManager.project.exported = new Date().toISOString();
+
+            const projectData = JSON.stringify(dataManager, null, 2);
+            const blob = new Blob([projectData], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${dataManager.project.name.replace(/\s+/g, '_')}.erm`;
+            link.click();
+
+            alert('Project exported successfully!');
+        }
+
+        function importProject() {
+            const fileInput = document.getElementById('projectImport');
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    Object.assign(dataManager, imported);
+
+                    document.getElementById('projectInfo').innerHTML = `
+                        <strong>Imported:</strong> ${dataManager.project.name}<br>
+                        <strong>Owner:</strong> ${dataManager.project.owner}<br>
+                        <strong>Status:</strong> ${dataManager.project.status}<br>
+                        <strong>Risks:</strong> ${dataManager.risks.length}<br>
+                        <strong>Controls:</strong> ${dataManager.controls.length}
+                    `;
+
+                    updateStats();
+                    alert('Project imported successfully!');
+                } catch (error) {
+                    alert('Error importing project: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function addComment() {
+            const commentText = prompt('Enter your comment:');
+            if (commentText) {
+                dataManager.comments.push({
+                    id: 'comment-' + Date.now(),
+                    text: commentText,
+                    author: document.getElementById('projectOwner').value || 'User',
+                    timestamp: new Date().toISOString(),
+                    resolved: false
+                });
+
+                renderComments();
+            }
+        }
+
+        function renderComments() {
+            const container = document.getElementById('commentsContainer');
+            if (dataManager.comments.length === 0) {
+                container.innerHTML = '<p style="color: var(--gray-300);">No comments yet.</p>';
+                return;
+            }
+
+            let html = '';
+            dataManager.comments.forEach(comment => {
+                html += `
+                    <div class="card" style="margin-bottom: 1rem;">
+                        <strong>${comment.author}</strong> - ${new Date(comment.timestamp).toLocaleString()}<br>
+                        <p>${comment.text}</p>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function generateAll() {
+            if (dataManager.risks.length === 0 || dataManager.controls.length === 0) {
+                alert('Please load risk and control data first');
+                return;
+            }
+
+            // Generate RCM
+            dataManager.rcm = [];
+            dataManager.risks.forEach(risk => {
+                dataManager.rcm.push({
+                    Risk_ID: risk.Risk_ID,
+                    Risk_Description: risk.Risk_Event,
+                    Risk_Rating: risk.Risk_Rating,
+                    Control_ID: 'CTRL-AUTO',
+                    Control_Description: 'Auto-generated control',
+                    Control_Type: 'Detective'
+                });
+            });
+
+            updateStats();
+            alert(`Generated ${dataManager.rcm.length} RCM entries! Switch to Analytics to visualize.`);
+        }
+
+        // Initialize
+        updateStats();
+    </script>
+</body>
+
+</html>

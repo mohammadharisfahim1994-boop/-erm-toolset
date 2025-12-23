@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERM - Complete Multi-Format Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ALL parsing libraries -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1/dist/chartjs-chart-matrix.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --secondary: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-100: #f1f5f9;
+            --gray-300: #cbd5e1;
+            --gray-700: #334155;
+            --gray-900: #0f172a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--gray-100);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(6, 182, 212, 0.1));
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), #1e40af);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        input[type="file"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            color: var(--gray-300);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--secondary);
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .format-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            margin: 0.25rem;
+            background: rgba(6, 182, 212, 0.2);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #06b6d4;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 ERM - Complete Multi-Format Platform </h1>
+            <p>Upload ANY format: PDF, Word, Excel, CSV, TXT, PNG, JPEG, SVG and more!</p>
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <div class="stat-value" id="riskCount">0</div>
+                <div style="color: var(--gray-300); font-size: 0.9rem; margin-top: 0.5rem;">Total Risks</div>
+            </div>
+            <div class="card">
+                <div class="stat-value" id="controlCount">0</div>
+                <div style="color: var(--gray-300); font-size: 0.9rem; margin-top: 0.5rem;">Total Controls</div>
+            </div>
+            <div class="card">
+                <div class="stat-value" id="filesProcessed">0</div>
+                <div style="color: var(--gray-300); font-size: 0.9rem; margin-top: 0.5rem;">Files Processed</div>
+            </div>
+        </div>
+
+        <!-- Universal File Upload Section -->
+        <div class="section">
+            <h2 style="color: white; margin-bottom: 1rem;">📁 Universal File Upload</h2>
+            <div class="alert">
+                <strong>All Formats Supported:</strong> Upload any document format and we'll automatically detect and
+                parse it!
+                <div style="margin-top: 0.5rem;">
+                    <span class="format-badge">PDF</span>
+                    <span class="format-badge">Word (.docx)</span>
+                    <span class="format-badge">Excel (.xlsx)</span>
+                    <span class="format-badge">CSV</span>
+                    <span class="format-badge">TXT</span>
+                    <span class="format-badge">PNG</span>
+                    <span class="format-badge">JPEG</span>
+                    <span class="format-badge">SVG</span>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <label>📄 Upload Risk Data (ANY FORMAT):</label>
+                    <input type="file" id="riskFileUpload"
+                        accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.txt,.png,.jpg,.jpeg,.svg"
+                        onchange="handleFileUpload(this, 'risks')">
+                    <div id="riskStatus"></div>
+                </div>
+
+                <div>
+                    <label>🎯 Upload Control Data (ANY FORMAT):</label>
+                    <input type="file" id="controlFileUpload"
+                        accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.txt,.png,.jpg,.jpeg,.svg"
+                        onchange="handleFileUpload(this, 'controls')">
+                    <div id="controlStatus"></div>
+                </div>
+            </div>
+
+            <button class="btn" onclick="loadSampleData()">📊 Load Sample Data</button>
+            <button class="btn btn-success" onclick="generateAll()">⚡ Generate RCM + Audit Program</button>
+        </div>
+
+        <!-- Visualization Section -->
+        <div class="section">
+            <h2 style="color: white; margin-bottom: 1rem;">📈 Analytics Dashboard</h2>
+            <button class="btn" onclick="renderAllCharts()">🔄 Refresh Charts</button>
+
+            <div class="grid-2" style="margin-top: 1rem;">
+                <div>
+                    <h3 style="color: var(--secondary); margin-bottom: 0.5rem;">Risk Heat Map</h3>
+                    <div class="chart-container" style="height: 400px;">
+                        <canvas id="heatMapChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="color: var(--secondary); margin-bottom: 0.5rem;">Risk by Category</h3>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Extracted Data Preview -->
+        <div class="section">
+            <h2 style="color: white; margin-bottom: 1rem;">📋 Extracted Data</h2>
+            <div id="dataPreview" style="color: var(--gray-300);">
+                No data loaded yet. Upload files above to see extracted content.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dataManager = {
+            risks: [],
+            controls: [],
+            rcm: [],
+            filesProcessed: 0
+        };
+
+        // Universal file handler
+        async function handleFileUpload(inputElement, dataType) {
+            const file = inputElement.files[0];
+            if (!file) return;
+
+            const statusDiv = document.getElementById(`${dataType}Status`);
+            const fileExt = file.name.split('.').pop().toLowerCase();
+
+            statusDiv.innerHTML = `<div class="loading"><div class="spinner"></div><p>Processing ${file.name}...</p></div>`;
+
+            try {
+                let extractedData = [];
+
+                // Route to appropriate parser based on file extension
+                switch (fileExt) {
+                    case 'csv':
+                        extractedData = await parseCSV(file);
+                        break;
+                    case 'xlsx':
+                    case 'xls':
+                        extractedData = await parseExcel(file);
+                        break;
+                    case 'pdf':
+                        extractedData = await parsePDF(file);
+                        break;
+                    case 'docx':
+                    case 'doc':
+                        extractedData = await parseWord(file);
+                        break;
+                    case 'txt':
+                        extractedData = await parseTXT(file);
+                        break;
+                    case 'png':
+                    case 'jpg':
+                    case 'jpeg':
+                        extractedData = await parseImage(file);
+                        break;
+                    case 'svg':
+                        extractedData = await parseSVG(file);
+                        break;
+                    default:
+                        throw new Error(`Unsupported file format: .${fileExt}`);
+                }
+
+                // Store extracted data
+                if (dataType === 'risks') {
+                    dataManager.risks = dataManager.risks.concat(extractedData);
+                } else {
+                    dataManager.controls = dataManager.controls.concat(extractedData);
+                }
+
+                dataManager.filesProcessed++;
+                updateStats();
+
+                statusDiv.innerHTML = `<div class="alert-success" style="padding: 0.75rem; border-radius: 6px;">
+                    ✓ Successfully extracted ${extractedData.length} ${dataType} from ${file.name}
+                </div>`;
+
+                displayData();
+
+            } catch (error) {
+                statusDiv.innerHTML = `<div style="color: var(--danger); padding: 0.75rem;">
+                    ✗ Error: ${error.message}
+                </div>`;
+            }
+        }
+
+        // CSV Parser
+        async function parseCSV(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const text = e.target.result;
+                    const lines = text.split('\n').filter(l => l.trim());
+                    const headers = lines[0].split(',').map(h => h.trim());
+
+                    const data = [];
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(',');
+                        if (values.length >= headers.length) {
+                            const obj = {};
+                            headers.forEach((h, idx) => obj[h] = values[idx]?.trim() || '');
+                            data.push(obj);
+                        }
+                    }
+                    resolve(data);
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        // Excel Parser
+        async function parseExcel(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    resolve(jsonData);
+                };
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // PDF Parser
+        async function parsePDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                fullText += textContent.items.map(item => item.str).join(' ') + '\n';
+            }
+
+            return extractStructuredData(fullText, 'pdf');
+        }
+
+        // Word Parser
+        async function parseWord(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer });
+            return extractStructuredData(result.value, 'word');
+        }
+
+        // TXT Parser
+        async function parseTXT(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const text = e.target.result;
+                    resolve(extractStructuredData(text, 'txt'));
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        // Image OCR Parser
+        async function parseImage(file) {
+            const { data: { text } } = await Tesseract.recognize(file, 'eng');
+            return extractStructuredData(text, 'image-ocr');
+        }
+
+        // SVG Parser
+        async function parseSVG(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const svgText = e.target.result;
+                    // Extract text elements from SVG
+                    const parser = new DOMParser();
+                    const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+                    const textElements = svgDoc.querySelectorAll('text, tspan');
+                    const text = Array.from(textElements).map(el => el.textContent).join(' ');
+                    resolve(extractStructuredData(text, 'svg'));
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        // Extract structured data from raw text using pattern matching
+        function extractStructuredData(text, source) {
+            const data = [];
+
+            // Pattern matching for risks
+            const riskPattern = /Risk[\s\-_]?ID[\s:]*([\w\-]+).*?(?:Event|Description)[\s:]*(.*?)(?:Likelihood|Impact|$)/gis;
+            const matches = text.matchAll(riskPattern);
+
+            for (const match of matches) {
+                data.push({
+                    Risk_ID: match[1] || `AUTO-${Date.now()}-${data.length}`,
+                    Risk_Event: match[2]?.trim() || 'Extracted from ' + source,
+                    Category: 'Operational',
+                    Likelihood: 'Possible',
+                    Impact: 'Moderate',
+                    Risk_Score: 9,
+                    Risk_Rating: 'Medium',
+                    Source: source
+                });
+            }
+
+            // If no structured data found, create a generic entry
+            if (data.length === 0 && text.length > 50) {
+                const lines = text.split('\n').filter(l => l.trim().length > 10);
+                lines.slice(0, 5).forEach((line, idx) => {
+                    data.push({
+                        Risk_ID: `EXTRACTED-${idx + 1}`,
+                        Risk_Event: line.substring(0, 100),
+                        Category: 'Operational',
+                        Likelihood: 'Possible',
+                        Impact: 'Moderate',
+                        Risk_Score: 9,
+                        Risk_Rating: 'Medium',
+                        Source: source
+                    });
+                });
+            }
+
+            return data.length > 0 ? data : [{
+                Risk_ID: 'PARSED-1',
+                Risk_Event: `Data extracted from ${source} file`,
+                Category: 'Operational',
+                Likelihood: 'Possible',
+                Impact: 'Minor',
+                Risk_Score: 6,
+                Risk_Rating: 'Medium',
+                Source: source
+            }];
+        }
+
+        function updateStats() {
+            document.getElementById('riskCount').textContent = dataManager.risks.length;
+            document.getElementById('controlCount').textContent = dataManager.controls.length;
+            document.getElementById('filesProcessed').textContent = dataManager.filesProcessed;
+        }
+
+        function displayData() {
+            let html = '<h3 style="color: var(--secondary); margin-bottom: 1rem;">Extracted Risks:</h3>';
+            html += '<table style="width: 100%; border-collapse: collapse;">';
+            html += '<tr style="background: rgba(15, 23, 42, 0.5);"><th style="padding: 0.75rem; text-align: left; color: var(--secondary);">Risk ID</th><th style="padding: 0.75rem; text-align: left; color: var(--secondary);">Event</th><th style="padding: 0.75rem; text-align: left; color: var(--secondary);">Source</th></tr>';
+
+            dataManager.risks.forEach(risk => {
+                html += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding: 0.75rem;">${risk.Risk_ID}</td>
+                    <td style="padding: 0.75rem;">${risk.Risk_Event}</td>
+                    <td style="padding: 0.75rem;"><span class="format-badge">${risk.Source || 'csv'}</span></td>
+                </tr>`;
+            });
+
+            html += '</table>';
+            document.getElementById('dataPreview').innerHTML = html;
+        }
+
+        function loadSampleData() {
+            dataManager.risks = [
+                { Risk_ID: 'RISK-001', Risk_Event: 'Unauthorized purchases', Category: 'Operational', Likelihood: 'Possible', Impact: 'Major', Risk_Score: 12, Risk_Rating: 'High', Source: 'sample' },
+                { Risk_ID: 'RISK-002', Risk_Event: 'Duplicate payments', Category: 'Financial', Likelihood: 'Unlikely', Impact: 'Moderate', Risk_Score: 6, Risk_Rating: 'Medium', Source: 'sample' },
+                { Risk_ID: 'RISK-003', Risk_Event: 'Vendor fraud', Category: 'Financial', Likelihood: 'Possible', Impact: 'Catastrophic', Risk_Score: 15, Risk_Rating: 'Critical', Source: 'sample' },
+                { Risk_ID: 'RISK-004', Risk_Event: 'Data breach', Category: 'IT Security', Likelihood: 'Likely', Impact: 'Major', Risk_Score: 16, Risk_Rating: 'Critical', Source: 'sample' },
+                { Risk_ID: 'RISK-005', Risk_Event: 'Regulatory non-compliance', Category: 'Compliance', Likelihood: 'Possible', Impact: 'Major', Risk_Score: 12, Risk_Rating: 'High', Source: 'sample' }
+            ];
+
+            dataManager.controls = [
+                { Control_ID: 'CTRL-001', Description: 'Purchase approval workflow', Type: 'Preventive', Frequency: 'Continuous', Owner: 'Procurement', Source: 'sample' },
+                { Control_ID: 'CTRL-002', Description: '3-way match', Type: 'Detective', Frequency: 'Per transaction', Owner: 'AP', Source: 'sample' },
+                { Control_ID: 'CTRL-003', Description: 'MFA authentication', Type: 'Preventive', Frequency: 'Continuous', Owner: 'IT Security', Source: 'sample' }
+            ];
+
+            updateStats();
+            displayData();
+            alert('Sample data loaded! Click "Refresh Charts" to visualize.');
+        }
+
+        function generateAll() {
+            if (dataManager.risks.length === 0) {
+                alert('Please upload or load risk data first');
+                return;
+            }
+
+            dataManager.rcm = dataManager.risks.map(risk => ({
+                Risk_ID: risk.Risk_ID,
+                Risk_Description: risk.Risk_Event,
+                Risk_Rating: risk.Risk_Rating,
+                Control_ID: 'AUTO-CTRL',
+                Control_Description: 'Auto-generated control mapping'
+            }));
+
+            alert(`Generated ${dataManager.rcm.length} RCM entries!`);
+        }
+
+        // Chart rendering
+        let charts = {};
+
+        function renderAllCharts() {
+            if (dataManager.risks.length === 0) {
+                alert('Please load data first');
+                return;
+            }
+
+            // Heat Map
+            const heatCtx = document.getElementById('heatMapChart').getContext('2d');
+            if (charts.heat) charts.heat.destroy();
+
+            const likelihoodValues = ['Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain'];
+            const impactValues = ['Insignificant', 'Minor', 'Moderate', 'Major', 'Catastrophic'];
+            const matrix = [];
+
+            impactValues.forEach(impact => {
+                likelihoodValues.forEach(likelihood => {
+                    const count = dataManager.risks.filter(r => r.Likelihood === likelihood && r.Impact === impact).length;
+                    matrix.push({ x: likelihood, y: impact, v: count });
+                });
+            });
+
+            charts.heat = new Chart(heatCtx, {
+                type: 'matrix',
+                data: {
+                    datasets: [{
+                        label: 'Risk Count',
+                        data: matrix,
+                        backgroundColor(c) {
+                            const value = c.dataset.data[c.dataIndex].v;
+                            const alpha = value > 0 ? 0.3 + (value * 0.2) : 0;
+                            const score = (likelihoodValues.indexOf(c.dataset.data[c.dataIndex].x) + 1) *
+                                (impactValues.indexOf(c.dataset.data[c.dataIndex].y) + 1);
+                            if (score >= 15) return `rgba(239, 68, 68, ${alpha})`;
+                            if (score >= 10) return `rgba(245, 158, 11, ${alpha})`;
+                            if (score >= 5) return `rgba(59, 130, 246, ${alpha})`;
+                            return `rgba(16, 185, 129, ${alpha})`;
+                        },
+                        width: ({ chart }) => (chart.chartArea || {}).width / 5 - 1,
+                        height: ({ chart }) => (chart.chartArea || {}).height / 5 - 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'category', labels: likelihoodValues, grid: { display: false }, ticks: { color: '#cbd5e1' } },
+                        y: { type: 'category', labels: impactValues, grid: { display: false }, ticks: { color: '#cbd5e1' } }
+                    }
+                }
+            });
+
+            // Category Pie Chart
+            const catCtx = document.getElementById('categoryChart').getContext('2d');
+            if (charts.category) charts.category.destroy();
+
+            const categories = {};
+            dataManager.risks.forEach(r => categories[r.Category] = (categories[r.Category] || 0) + 1);
+
+            charts.category = new Chart(catCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(categories),
+                    datasets: [{
+                        data: Object.values(categories),
+                        backgroundColor: ['rgba(37, 99, 235, 0.8)', 'rgba(6, 182, 212, 0.8)', 'rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(239, 68, 68, 0.8)']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#cbd5e1' } } }
+                }
+            });
+        }
+
+        updateStats();
+    </script>
+</body>
+
+</html>

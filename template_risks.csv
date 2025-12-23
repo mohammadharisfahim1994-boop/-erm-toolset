@@ -1,0 +1,15 @@
+Risk_ID,Risk_Event,Category,Likelihood,Impact,Description,Existing_Controls,Risk_Owner
+EXAMPLE-001,Example risk event - delete this row,Operational,Possible,Major,Detailed description of the risk,List any existing controls,Owner Name
+
+INSTRUCTIONS:
+,,,,,,,
+"1. Delete the example row above",,,,,,,
+"2. Fill in your risk data starting from row 4",,,,,,,
+"3. Use the dropdowns for Category Likelihood and Impact",,,,,,,
+"4. Risk_ID and Risk_Event are required fields",,,,,,,
+"5. Save and upload this file to the ERM system",,,,,,,
+,,,,,,,
+VALID VALUES:,,,,,,,
+"Category: Operational Financial Compliance IT Security Strategic",,,,,,,
+"Likelihood: Rare Unlikely Possible Likely Almost Certain",,,,,,,
+"Impact: Insignificant Minor Moderate Major Catastrophic",,,,,,,

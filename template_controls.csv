@@ -1,0 +1,15 @@
+Control_ID,Description,Type,Frequency,Owner,Risk_Addressed
+EXAMPLE-CTL-001,Example control description - delete this row,Preventive,Monthly,Owner Name,RISK-001;RISK-002
+
+INSTRUCTIONS:
+,,,,
+"1. Delete the example row above",,,,
+"2. Fill in your control data starting from row 4",,,,
+"3. Use the dropdowns for Type and Frequency",,,,
+"4. Control_ID Description and Owner are required",,,,
+"5. Risk_Addressed: Use semicolons to separate multiple Risk IDs (e.g. RISK-001;RISK-002)",,,,
+"6. Save and upload this file to the ERM system",,,,
+,,,,
+VALID VALUES:,,,,
+"Type: Preventive Detective Corrective",,,,
+"Frequency: Continuous Daily Weekly Monthly Quarterly Annually",,,,

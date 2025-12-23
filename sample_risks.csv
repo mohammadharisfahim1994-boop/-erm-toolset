@@ -1,0 +1,11 @@
+Risk_ID,Risk_Event,Category,Likelihood,Impact,Description
+RISK-001,Unauthorized purchases,Operational,Possible,Major,Purchases made without proper authorization
+RISK-002,Duplicate payments,Financial,Unlikely,Moderate,Invoice paid multiple times
+RISK-003,Vendor fraud,Financial,Possible,Catastrophic,Fictitious vendors or inflated invoices
+RISK-004,Data breach,IT Security,Likely,Major,Unauthorized access to sensitive data
+RISK-005,Non-compliance with regulations,Compliance,Possible,Major,Failed to meet regulatory requirements
+RISK-006,System downtime,IT Operations,Likely,Moderate,Critical system unavailable
+RISK-007,Inventory theft,Operational,Possible,Minor,Physical inventory stolen
+RISK-008,Segregation of duties violation,Operational,Likely,Major,Same person can initiate and approve transactions
+RISK-009,Financial misstatement,Financial,Unlikely,Catastrophic,Errors in financial reporting
+RISK-010,Supplier dependency risk,Operational,Possible,Major,Over-reliance on single supplier

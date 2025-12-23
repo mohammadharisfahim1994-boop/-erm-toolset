@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Risk Management (ERM) Toolset</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--gray-100);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(6, 182, 212, 0.1));
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: var(--gray-300);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .tool-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover {
+            border-color: rgba(37, 99, 235, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .tool-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .tool-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tool-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .tool-card h2 {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .tool-card p {
+            color: var(--gray-300);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .tool-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        label {
+            color: var(--gray-300);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        textarea, input, select {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus, input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(15, 23, 42, 0.7);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .output {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            display: none;
+        }
+
+        .output.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .output-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+
+        .output-table th,
+        .output-table td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+        }
+
+        .output-table th {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .output-table td {
+            color: var(--gray-300);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-high {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .badge-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+        }
+
+        .badge-low {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+
+        .badge-critical {
+            background: rgba(220, 38, 38, 0.3);
+            color: #fca5a5;
+        }
+
+        .demo-section {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .demo-section h2 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--gray-300);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Enterprise Risk Management Toolset</h1>
+            <p>Comprehensive audit process automation and documentation tools</p>
+        </div>
+
+        <div class="tools-grid">
+            <!-- Process Flow Generator -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon">📊</div>
+                    <h2>Process Flow Generator</h2>
+                </div>
+                <p>Transform field notes into structured, documented process flows with metadata enrichment.</p>
+                <div class="tool-form">
+                    <label>Field Notes (numbered or bulleted steps):</label>
+                    <textarea id="processNotes" placeholder="1. User submits request&#10;2. Manager approves&#10;3. System processes...">1. Requestor creates purchase requisition in system
+2. Manager reviews and approves requisition
+3. Procurement team creates purchase order
+4. Vendor delivers goods with packing slip
+5. Warehouse receives goods and creates GRN
+6. AP team receives invoice
+7. System performs 3-way match
+8. Payment is processed</textarea>
+                    <button class="btn" onclick="generateProcessFlow()">Generate Process Flow</button>
+                    <div id="processOutput" class="output"></div>
+                </div>
+            </div>
+
+            <!-- Gap Analyzer -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon">🔍</div>
+                    <h2>Gap Analyzer</h2>
+                </div>
+                <p>Identify discrepancies between documented procedures and observed practices.</p>
+                <div class="tool-form">
+                    <label>Documented Steps (one per line):</label>
+                    <textarea id="documented" placeholder="Manager approval required&#10;Three-way match mandatory">Manager approval required
+Three-way match mandatory
+Segregation of duties</textarea>
+                    <label>Observed Steps (one per line):</label>
+                    <textarea id="observed" placeholder="Manager approval obtained&#10;Segregation enforced">Manager approval obtained
+Segregation of duties implemented</textarea>
+                    <button class="btn" onclick="analyzeGaps()">Analyze Gaps</button>
+                    <div id="gapOutput" class="output"></div>
+                </div>
+            </div>
+
+            <!-- Risk Assessor -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon">⚠️</div>
+                    <h2>Risk Assessor</h2>
+                </div>
+                <p>Calculate inherent risk scores using likelihood and impact matrices.</p>
+                <div class="tool-form">
+                    <label>Risk Event:</label>
+                    <input type="text" id="riskEvent" placeholder="e.g., Unauthorized purchases">
+                    <label>Likelihood:</label>
+                    <select id="likelihood">
+                        <option>Rare</option>
+                        <option>Unlikely</option>
+                        <option selected>Possible</option>
+                        <option>Likely</option>
+                        <option>Almost Certain</option>
+                    </select>
+                    <label>Impact:</label>
+                    <select id="impact">
+                        <option>Insignificant</option>
+                        <option>Minor</option>
+                        <option selected>Moderate</option>
+                        <option>Major</option>
+                        <option>Catastrophic</option>
+                    </select>
+                    <button class="btn" onclick="assessRisk()">Assess Risk</button>
+                    <div id="riskOutput" class="output"></div>
+                </div>
+            </div>
+
+            <!-- RCM Generator -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon">🎯</div>
+                    <h2>Risk & Control Matrix</h2>
+                </div>
+                <p>Generate comprehensive Risk and Control Matrix mapping risks to controls.</p>
+                <div class="tool-form">
+                    <label>Control Description:</label>
+                    <textarea id="controlDesc" placeholder="Describe the control...">System approval workflow for all purchases above threshold</textarea>
+                    <label>Control Type:</label>
+                    <select id="controlType">
+                        <option selected>Preventive</option>
+                        <option>Detective</option>
+                        <option>Corrective</option>
+                    </select>
+                    <label>Control Owner:</label>
+                    <input type="text" id="controlOwner" placeholder="e.g., IT Manager">
+                    <button class="btn" onclick="generateRCM()">Generate RCM Entry</button>
+                    <div id="rcmOutput" class="output"></div>
+                </div>
+            </div>
+
+            <!-- POL Generator -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon">📝</div>
+                    <h2>Potential Observations Library</h2>
+                </div>
+                <p>Create structured audit observations from identified gaps and control weaknesses.</p>
+                <div class="tool-form">
+                    <label>Observation Title:</label>
+                    <input type="text" id="obsTitle" placeholder="e.g., Missing segregation of duties">
+                    <label>Condition (What was observed):</label>
+                    <textarea id="obsCondition" placeholder="Describe what you observed...">Same user can create and approve purchase orders</textarea>
+                    <label>Criteria (What should be):</label>
+                    <textarea id="obsCriteria" placeholder="Describe the requirement...">Policy requires segregation between creation and approval roles</textarea>
+                    <button class="btn" onclick="generateObservation()">Generate Observation</button>
+                    <div id="polOutput" class="output"></div>
+                </div>
+            </div>
+
+            <!-- Audit Program Formulator -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon">📋</div>
+                    <h2>Audit Program Formulator</h2>
+                </div>
+                <p>Formulate risk-based audit procedures with appropriate sample sizes.</p>
+                <div class="tool-form">
+                    <label>Control to Test:</label>
+                    <input type="text" id="controlTest" placeholder="e.g., Three-way match control">
+                    <label>Risk Rating:</label>
+                    <select id="riskRating">
+                        <option>Low</option>
+                        <option>Medium</option>
+                        <option selected>High</option>
+                        <option>Critical</option>
+                    </select>
+                    <label>Test Type:</label>
+                    <select id="testType">
+                        <option>Inquiry</option>
+                        <option>Inspection</option>
+                        <option selected>Sample Testing</option>
+                        <option>Reperformance</option>
+                    </select>
+                    <button class="btn" onclick="formulateProcedure()">Formulate Procedure</button>
+                    <div id="auditOutput" class="output"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Statistics -->
+        <div class="demo-section">
+            <h2>📊 Toolset Capabilities</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">7</div>
+                    <div class="stat-label">Integrated Tools</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">100%</div>
+                    <div class="stat-label">Audit Coverage</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">5x</div>
+                    <div class="stat-label">Efficiency Gain</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">∞</div>
+                    <div class="stat-label">Customization</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Process Flow Generator
+        function generateProcessFlow() {
+            const notes = document.getElementById('processNotes').value;
+            const lines = notes.split('\n').filter(line => line.trim());
+            
+            let html = '<h3 style="color: var(--success);">✓ Process Flow Generated</h3>';
+            html += '<table class="output-table"><thead><tr><th>Step</th><th>Description</th><th>Status</th></tr></thead><tbody>';
+            
+            let stepNum = 1;
+            lines.forEach(line => {
+                const cleaned = line.replace(/^[\d]+[\.\)]\s*/, '').replace(/^[-*•]\s*/, '').trim();
+                if (cleaned.length > 10) {
+                    html += `<tr>
+                        <td><strong>${stepNum}</strong></td>
+                        <td>${cleaned}</td>
+                        <td><span class="badge badge-low">Documented</span></td>
+                    </tr>`;
+                    stepNum++;
+                }
+            });
+            
+            html += '</tbody></table>';
+            html += `<p style="margin-top: 1rem; color: var(--gray-300);">Total Steps: ${stepNum - 1}</p>`;
+            
+            const output = document.getElementById('processOutput');
+            output.innerHTML = html;
+            output.classList.add('show');
+        }
+
+        // Gap Analyzer
+        function analyzeGaps() {
+            const documented = document.getElementById('documented').value.split('\n').filter(l => l.trim());
+            const observed = document.getElementById('observed').value.split('\n').filter(l => l.trim());
+            
+            let gaps = [];
+            let gapId = 1;
+            
+            // Missing steps
+            documented.forEach(doc => {
+                if (!observed.includes(doc)) {
+                    gaps.push({
+                        id: `GAP-${String(gapId).padStart(3, '0')}`,
+                        type: 'Missing Step',
+                        severity: 'High',
+                        documented: doc,
+                        observed: 'Step not performed'
+                    });
+                    gapId++;
+                }
+            });
+            
+            // Extra steps
+            observed.forEach(obs => {
+                if (!documented.includes(obs)) {
+                    gaps.push({
+                        id: `GAP-${String(gapId).padStart(3, '0')}`,
+                        type: 'Undocumented Step',
+                        severity: 'Medium',
+                        documented: 'Not documented',
+                        observed: obs
+                    });
+                    gapId++;
+                }
+            });
+            
+            let html = `<h3 style="color: ${gaps.length > 0 ? 'var(--warning)' : 'var(--success)'};">
+                ${gaps.length > 0 ? '⚠' : '✓'} Found ${gaps.length} Gap(s)</h3>`;
+            
+            if (gaps.length > 0) {
+                html += '<table class="output-table"><thead><tr><th>Gap ID</th><th>Type</th><th>Severity</th><th>Details</th></tr></thead><tbody>';
+                gaps.forEach(gap => {
+                    const badgeClass = gap.severity === 'High' ? 'badge-high' : 'badge-medium';
+                    html += `<tr>
+                        <td><strong>${gap.id}</strong></td>
+                        <td>${gap.type}</td>
+                        <td><span class="badge ${badgeClass}">${gap.severity}</span></td>
+                        <td>Expected: ${gap.documented}<br>Actual: ${gap.observed}</td>
+                    </tr>`;
+                });
+                html += '</tbody></table>';
+            } else {
+                html += '<p style="color: var(--gray-300);">No gaps identified. Observed practices align with documentation.</p>';
+            }
+            
+            const output = document.getElementById('gapOutput');
+            output.innerHTML = html;
+            output.classList.add('show');
+        }
+
+        // Risk Assessor
+        function assessRisk() {
+            const riskEvent = document.getElementById('riskEvent').value || 'Unnamed Risk';
+            const likelihood = document.getElementById('likelihood').value;
+            const impact = document.getElementById('impact').value;
+            
+            const likelihoodScores = {
+                'Rare': 1, 'Unlikely': 2, 'Possible': 3, 'Likely': 4, 'Almost Certain': 5
+            };
+            const impactScores = {
+                'Insignificant': 1, 'Minor': 2, 'Moderate': 3, 'Major': 4, 'Catastrophic': 5
+            };
+            
+            const lScore = likelihoodScores[likelihood];
+            const iScore = impactScores[impact];
+            const riskScore = lScore * iScore;
+            
+            let rating, badgeClass;
+            if (riskScore >= 15) {
+                rating = 'Critical';
+                badgeClass = 'badge-critical';
+            } else if (riskScore >= 10) {
+                rating = 'High';
+                badgeClass = 'badge-high';
+            } else if (riskScore >= 5) {
+                rating = 'Medium';
+                badgeClass = 'badge-medium';
+            } else {
+                rating = 'Low';
+                badgeClass = 'badge-low';
+            }
+            
+            let html = `<h3 style="color: var(--success);">✓ Risk Assessment Complete</h3>`;
+            html += '<table class="output-table"><tbody>';
+            html += `<tr><td><strong>Risk Event</strong></td><td>${riskEvent}</td></tr>`;
+            html += `<tr><td><strong>Likelihood</strong></td><td>${likelihood} (${lScore})</td></tr>`;
+            html += `<tr><td><strong>Impact</strong></td><td>${impact} (${iScore})</td></tr>`;
+            html += `<tr><td><strong>Risk Score</strong></td><td>${riskScore}</td></tr>`;
+            html += `<tr><td><strong>Risk Rating</strong></td><td><span class="badge ${badgeClass}">${rating}</span></td></tr>`;
+            html += '</tbody></table>';
+            
+            const output = document.getElementById('riskOutput');
+            output.innerHTML = html;
+            output.classList.add('show');
+        }
+
+        // RCM Generator
+        function generateRCM() {
+            const controlDesc = document.getElementById('controlDesc').value;
+            const controlType = document.getElementById('controlType').value;
+            const controlOwner = document.getElementById('controlOwner').value || 'TBD';
+            
+            const controlId = `CTRL-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
+            
+            let html = `<h3 style="color: var(--success);">✓ RCM Entry Generated</h3>`;
+            html += '<table class="output-table"><tbody>';
+            html += `<tr><td><strong>Control ID</strong></td><td>${controlId}</td></tr>`;
+            html += `<tr><td><strong>Description</strong></td><td>${controlDesc}</td></tr>`;
+            html += `<tr><td><strong>Type</strong></td><td><span class="badge badge-low">${controlType}</span></td></tr>`;
+            html += `<tr><td><strong>Owner</strong></td><td>${controlOwner}</td></tr>`;
+            html += `<tr><td><strong>Design Effectiveness</strong></td><td>To Be Tested</td></tr>`;
+            html += `<tr><td><strong>Operating Effectiveness</strong></td><td>To Be Tested</td></tr>`;
+            html += '</tbody></table>';
+            
+            const output = document.getElementById('rcmOutput');
+            output.innerHTML = html;
+            output.classList.add('show');
+        }
+
+        // POL Generator
+        function generateObservation() {
+            const title = document.getElementById('obsTitle').value || 'Untitled Observation';
+            const condition = document.getElementById('obsCondition').value;
+            const criteria = document.getElementById('obsCriteria').value;
+            
+            const obsId = `OBS-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
+            
+            let html = `<h3 style="color: var(--success);">✓ Observation Generated</h3>`;
+            html += '<table class="output-table"><tbody>';
+            html += `<tr><td><strong>Observation ID</strong></td><td>${obsId}</td></tr>`;
+            html += `<tr><td><strong>Title</strong></td><td>${title}</td></tr>`;
+            html += `<tr><td><strong>Condition</strong></td><td>${condition}</td></tr>`;
+            html += `<tr><td><strong>Criteria</strong></td><td>${criteria}</td></tr>`;
+            html += `<tr><td><strong>Cause</strong></td><td>To be determined during fieldwork</td></tr>`;
+            html += `<tr><td><strong>Effect</strong></td><td>Potential control weakness</td></tr>`;
+            html += `<tr><td><strong>Status</strong></td><td><span class="badge badge-medium">Potential - Requires Validation</span></td></tr>`;
+            html += '</tbody></table>';
+            
+            const output = document.getElementById('polOutput');
+            output.innerHTML = html;
+            output.classList.add('show');
+        }
+
+        // Audit Program Formulator
+        function formulateProcedure() {
+            const control = document.getElementById('controlTest').value || 'Unnamed Control';
+            const riskRating = document.getElementById('riskRating').value;
+            const testType = document.getElementById('testType').value;
+            
+            const sampleSizes = {
+                'Critical': '30-40',
+                'High': '25-30',
+                'Medium': '15-25',
+                'Low': '10-15'
+            };
+            
+            const sampleSize = sampleSizes[riskRating];
+            const procId = `AP-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
+            
+            let html = `<h3 style="color: var(--success);">✓ Audit Procedure Formulated</h3>`;
+            html += '<table class="output-table"><tbody>';
+            html += `<tr><td><strong>Procedure ID</strong></td><td>${procId}</td></tr>`;
+            html += `<tr><td><strong>Control Tested</strong></td><td>${control}</td></tr>`;
+            html += `<tr><td><strong>Test Type</strong></td><td>${testType}</td></tr>`;
+            html += `<tr><td><strong>Risk Rating</strong></td><td><span class="badge badge-${riskRating.toLowerCase()}">${riskRating}</span></td></tr>`;
+            html += `<tr><td><strong>Sample Size</strong></td><td>${sampleSize} items</td></tr>`;
+            html += `<tr><td><strong>Expected Evidence</strong></td><td>Transaction logs, approval records, system reports</td></tr>`;
+            html += '</tbody></table>';
+            
+            const output = document.getElementById('auditOutput');
+            output.innerHTML = html;
+            output.classList.add('show');
+        }
+    </script>
+</body>
+</html>

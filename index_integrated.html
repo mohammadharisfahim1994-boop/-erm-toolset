@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Risk Management (ERM) - Integrated Workflow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--gray-100);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(6, 182, 212, 0.1));
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--gray-300);
+        }
+
+        /* Workflow Progress */
+        .workflow-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.7);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+        }
+
+        .workflow-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 120px;
+        }
+
+        .workflow-step-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: rgba(71, 85, 105, 0.5);
+            border: 2px solid var(--gray-600);
+            transition: all 0.3s ease;
+        }
+
+        .workflow-step.active .workflow-step-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
+        }
+
+        .workflow-step.completed .workflow-step-icon {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .workflow-step-label {
+            font-size: 0.85rem;
+            color: var(--gray-300);
+            text-align: center;
+        }
+
+        .workflow-arrow {
+            color: var(--gray-600);
+            font-size: 1.5rem;
+            margin: 0 0.5rem;
+        }
+
+        /* Section Headers */
+        .section {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .section h2 {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        /* Form Elements */
+        label {
+            color: var(--gray-300);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="file"],
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        input[type="file"]::-webkit-file-upload-button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(15, 23, 42, 0.7);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--gray-700), var(--gray-800));
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table thead {
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+        }
+
+        .data-table th {
+            color: var(--secondary);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            background: rgba(37, 99, 235, 0.2);
+        }
+
+        .data-table td {
+            color: var(--gray-300);
+        }
+
+        .data-table tr:hover {
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-high,
+        .badge-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .badge-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+        }
+
+        .badge-low {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+
+        .badge-pending {
+            background: rgba(147, 197, 253, 0.2);
+            color: #93c5fd;
+        }
+
+        .badge-confirmed {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--gray-300);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fcd34d;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+
+        /* Hide/Show */
+        .hidden {
+            display: none;
+        }
+
+        .file-info {
+            font-size: 0.85rem;
+            color: var(--success);
+            margin-top: 0.5rem;
+        }
+
+        .mapping-grid {
+            display: grid;
+            grid-template-columns: 1fr 100px 1fr;
+            gap: 1rem;
+            align-items: start;
+            margin: 1rem 0;
+        }
+
+        .mapping-list {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .mapping-item {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .mapping-item:hover {
+            background: rgba(37, 99, 235, 0.2);
+        }
+
+        .mapping-item.selected {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.3);
+        }
+
+        .mapping-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scrollable-content {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Enterprise Risk Management - Integrated Workflow</h1>
+            <p>Complete audit lifecycle from risk assessment to validated findings</p>
+        </div>
+
+        <!-- Workflow Progress Tracker -->
+        <div class="workflow-progress">
+            <div class="workflow-step" id="step1" data-step="1">
+                <div class="workflow-step-icon">1️⃣</div>
+                <div class="workflow-step-label">Import Risks</div>
+            </div>
+            <div class="workflow-arrow">→</div>
+            <div class="workflow-step" id="step2" data-step="2">
+                <div class="workflow-step-icon">2️⃣</div>
+                <div class="workflow-step-label">Import Controls</div>
+            </div>
+            <div class="workflow-arrow">→</div>
+            <div class="workflow-step" id="step3" data-step="3">
+                <div class="workflow-step-icon">3️⃣</div>
+                <div class="workflow-step-label">Generate RCM</div>
+            </div>
+            <div class="workflow-arrow">→</div>
+            <div class="workflow-step" id="step4" data-step="4">
+                <div class="workflow-step-icon">4️⃣</div>
+                <div class="workflow-step-label">Audit Program</div>
+            </div>
+            <div class="workflow-arrow">→</div>
+            <div class="workflow-step" id="step5" data-step="5">
+                <div class="workflow-step-icon">5️⃣</div>
+                <div class="workflow-step-label">POL & Findings</div>
+            </div>
+        </div>
+
+        <!-- Step 1: Risk Assessment -->
+        <div class="section" id="section-risks">
+            <h2><span class="section-icon">⚠️</span> Step 1: Risk Assessment & Data Import</h2>
+
+            <div class="alert alert-info">
+                <strong>📋 Instructions:</strong> Upload your risk catalog (CSV, Excel, or JSON) or use the sample data.
+                Expected columns: Risk_ID, Risk_Event, Category, Likelihood, Impact, Description
+            </div>
+
+            <label>Upload Risk Dataset:</label>
+            <input type="file" id="riskFileInput" accept=".csv,.xlsx,.json">
+            <div id="riskFileInfo" class="file-info hidden"></div>
+
+            <button class="btn" onclick="loadSampleRisks()">Load Sample Risk Data</button>
+            <button class="btn btn-secondary" onclick="showRisksTable()">View Risk Catalog</button>
+
+            <div id="risksTableContainer" class="hidden scrollable-content">
+                <table class="data-table" id="risksTable">
+                    <thead>
+                        <tr>
+                            <th>Risk ID</th>
+                            <th>Risk Event</th>
+                            <th>Category</th>
+                            <th>Likelihood</th>
+                            <th>Impact</th>
+                            <th>Risk Score</th>
+                            <th>Risk Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody id="risksTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="grid-2" style="margin-top: 1.5rem;">
+                <div class="stat-card">
+                    <div class="stat-value" id="riskCount">0</div>
+                    <div class="stat-label">Total Risks Loaded</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="highRiskCount">0</div>
+                    <div class="stat-label">High/Critical Risks</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Controls Library -->
+        <div class="section" id="section-controls">
+            <h2><span class="section-icon">🎯</span> Step 2: Controls Library (Walkthrough Findings)</h2>
+
+            <div class="alert alert-info">
+                <strong>📋 Instructions:</strong> Upload controls identified during walkthrough or add manually.
+                Expected columns: Control_ID, Description, Type, Owner, Frequency
+            </div>
+
+            <label>Upload Controls Dataset:</label>
+            <input type="file" id="controlsFileInput" accept=".csv,.xlsx,.json">
+            <div id="controlsFileInfo" class="file-info hidden"></div>
+
+            <button class="btn" onclick="loadSampleControls()">Load Sample Controls</button>
+            <button class="btn btn-secondary" onclick="showControlsTable()">View Controls Library</button>
+
+            <div id="controlsTableContainer" class="hidden scrollable-content">
+                <table class="data-table" id="controlsTable">
+                    <thead>
+                        <tr>
+                            <th>Control ID</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Owner</th>
+                            <th>Frequency</th>
+                        </tr>
+                    </thead>
+                    <tbody id="controlsTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="stat-card" style="margin-top: 1.5rem;">
+                <div class="stat-value" id="controlCount">0</div>
+                <div class="stat-label">Total Controls Loaded</div>
+            </div>
+        </div>
+
+        <!-- Step 3: RCM Generator -->
+        <div class="section" id="section-rcm">
+            <h2><span class="section-icon">🔗</span> Step 3: Risk & Control Matrix (RCM) Generation</h2>
+
+            <div class="alert alert-info">
+                <strong>📋 Instructions:</strong> Map controls to risks. Select a risk and one or more controls, then
+                click "Map Control to Risk".
+            </div>
+
+            <div class="mapping-grid">
+                <div>
+                    <h3 style="color: var(--gray-300); margin-bottom: 1rem;">Risks</h3>
+                    <div class="mapping-list" id="riskMappingList"></div>
+                </div>
+                <div class="mapping-controls">
+                    <button class="btn" onclick="mapControlToRisk()">Map →</button>
+                    <button class="btn btn-secondary" onclick="autoMapControls()">Auto-Map</button>
+                </div>
+                <div>
+                    <h3 style="color: var(--gray-300); margin-bottom: 1rem;">Controls</h3>
+                    <div class="mapping-list" id="controlMappingList"></div>
+                </div>
+            </div>
+
+            <button class="btn btn-success" onclick="generateRCM()" style="margin-top: 1.5rem;">Generate Complete
+                RCM</button>
+            <button class="btn btn-secondary" onclick="exportRCM()">Export RCM to Excel</button>
+
+            <div id="rcmTableContainer" class="hidden scrollable-content" style="margin-top: 1.5rem;">
+                <table class="data-table" id="rcmTable">
+                    <thead>
+                        <tr>
+                            <th>Risk ID</th>
+                            <th>Risk Description</th>
+                            <th>Risk Rating</th>
+                            <th>Control ID</th>
+                            <th>Control Description</th>
+                            <th>Control Type</th>
+                            <th>Control Owner</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rcmTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="grid-2" style="margin-top: 1.5rem;">
+                <div class="stat-card">
+                    <div class="stat-value" id="mappedRisks">0</div>
+                    <div class="stat-label">Risks with Controls</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="controlGaps">0</div>
+                    <div class="stat-label">Control Gaps</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Audit Program -->
+        <div class="section" id="section-audit-program">
+            <h2><span class="section-icon">📋</span> Step 4: Audit Program Formulation</h2>
+
+            <div class="alert alert-info">
+                <strong>📋 Instructions:</strong> Automatically generate audit procedures based on your RCM.
+            </div>
+
+            <button class="btn btn-success" onclick="generateAuditProgram()">Generate Audit Program</button>
+            <button class="btn btn-secondary" onclick="exportAuditProgram()">Export to Excel</button>
+
+            <div id="auditProgramContainer" class="hidden scrollable-content" style="margin-top: 1.5rem;">
+                <table class="data-table" id="auditProgramTable">
+                    <thead>
+                        <tr>
+                            <th>Procedure ID</th>
+                            <th>Objective</th>
+                            <th>Control Tested</th>
+                            <th>Risk Addressed</th>
+                            <th>Test Type</th>
+                            <th>Sample Size</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditProgramBody"></tbody>
+                </table>
+            </div>
+
+            <div class="stat-card" style="margin-top: 1.5rem;">
+                <div class="stat-value" id="procedureCount">0</div>
+                <div class="stat-label">Total Audit Procedures</div>
+            </div>
+        </div>
+
+        <!-- Step 5: POL & Findings -->
+        <div class="section" id="section-pol">
+            <h2><span class="section-icon">📝</span> Step 5: Potential Observations Library & Validation</h2>
+
+            <div class="alert alert-info">
+                <strong>📋 Instructions:</strong> Review auto-generated observations from control gaps and validate
+                based on audit evidence.
+            </div>
+
+            <button class="btn btn-success" onclick="generatePOL()">Generate POL from Control Gaps</button>
+            <button class="btn btn-secondary" onclick="exportPOL()">Export to Excel</button>
+
+            <div id="polContainer" class="hidden scrollable-content" style="margin-top: 1.5rem;">
+                <table class="data-table" id="polTable">
+                    <thead>
+                        <tr>
+                            <th>Obs ID</th>
+                            <th>Title</th>
+                            <th>Risk Rating</th>
+                            <th>Condition</th>
+                            <th>Recommendation</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="polBody"></tbody>
+                </table>
+            </div>
+
+            <div class="grid-2" style="margin-top: 1.5rem;">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalObservations">0</div>
+                    <div class="stat-label">Total Observations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="confirmedFindings">0</div>
+                    <div class="stat-label">Confirmed Findings</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export All -->
+        <div class="section">
+            <h2><span class="section-icon">💾</span> Export Complete Project</h2>
+            <button class="btn btn-success" onclick="exportAllData()">Export All Data (JSON)</button>
+            <button class="btn btn-success" onclick="exportCompleteWorkbook()">Export Complete Workbook (Excel)</button>
+            <button class="btn btn-secondary" onclick="clearAllData()">Clear All Data</button>
+        </div>
+    </div>
+
+    <script>
+        // ===============================
+        // DATA FLOW MANAGER
+        // ===============================
+        class DataFlowManager {
+            constructor() {
+                this.risks = [];
+                this.controls = [];
+                this.rcm = [];
+                this.auditProgram = [];
+                this.pol = [];
+                this.riskControlMappings = {}; // risk_id -> [control_ids]
+                this.loadFromStorage();
+            }
+
+            saveToStorage() {
+                localStorage.setItem('erm_risks', JSON.stringify(this.risks));
+                localStorage.setItem('erm_controls', JSON.stringify(this.controls));
+                localStorage.setItem('erm_rcm', JSON.stringify(this.rcm));
+                localStorage.setItem('erm_auditProgram', JSON.stringify(this.auditProgram));
+                localStorage.setItem('erm_pol', JSON.stringify(this.pol));
+                localStorage.setItem('erm_mappings', JSON.stringify(this.riskControlMappings));
+            }
+
+            loadFromStorage() {
+                this.risks = JSON.parse(localStorage.getItem('erm_risks') || '[]');
+                this.controls = JSON.parse(localStorage.getItem('erm_controls') || '[]');
+                this.rcm = JSON.parse(localStorage.getItem('erm_rcm') || '[]');
+                this.auditProgram = JSON.parse(localStorage.getItem('erm_auditProgram') || '[]');
+                this.pol = JSON.parse(localStorage.getItem('erm_pol') || '[]');
+                this.riskControlMappings = JSON.parse(localStorage.getItem('erm_mappings') || '{}');
+            }
+
+            clearAll() {
+                this.risks = [];
+                this.controls = [];
+                this.rcm = [];
+                this.auditProgram = [];
+                this.pol = [];
+                this.riskControlMappings = {};
+                this.saveToStorage();
+            }
+
+            calculateRiskScore(likelihood, impact) {
+                const likelihoodScores = { 'Rare': 1, 'Unlikely': 2, 'Possible': 3, 'Likely': 4, 'Almost Certain': 5 };
+                const impactScores = { 'Insignificant': 1, 'Minor': 2, 'Moderate': 3, 'Major': 4, 'Catastrophic': 5 };
+
+                const lScore = likelihoodScores[likelihood] || 3;
+                const iScore = impactScores[impact] || 3;
+                const score = lScore * iScore;
+
+                let rating;
+                if (score >= 15) rating = 'Critical';
+                else if (score >= 10) rating = 'High';
+                else if (score >= 5) rating = 'Medium';
+                else rating = 'Low';
+
+                return { score, rating };
+            }
+
+            addRisks(risksData) {
+                risksData.forEach(risk => {
+                    const { score, rating } = this.calculateRiskScore(risk.Likelihood, risk.Impact);
+                    this.risks.push({
+                        ...risk,
+                        Risk_Score: score,
+                        Risk_Rating: rating
+                    });
+                });
+                this.saveToStorage();
+                updateWorkflowProgress(1);
+            }
+
+            addControls(controlsData) {
+                this.controls = [...this.controls, ...controlsData];
+                this.saveToStorage();
+                updateWorkflowProgress(2);
+            }
+
+            mapRiskToControl(riskId, controlIds) {
+                if (!this.riskControlMappings[riskId]) {
+                    this.riskControlMappings[riskId] = [];
+                }
+                controlIds.forEach(cId => {
+                    if (!this.riskControlMappings[riskId].includes(cId)) {
+                        this.riskControlMappings[riskId].push(cId);
+                    }
+                });
+                this.saveToStorage();
+            }
+
+            generateRCMEntries() {
+                this.rcm = [];
+                this.risks.forEach(risk => {
+                    const controlIds = this.riskControlMappings[risk.Risk_ID] || [];
+
+                    if (controlIds.length > 0) {
+                        controlIds.forEach(controlId => {
+                            const control = this.controls.find(c => c.Control_ID === controlId);
+                            if (control) {
+                                this.rcm.push({
+                                    Risk_ID: risk.Risk_ID,
+                                    Risk_Description: risk.Risk_Event,
+                                    Risk_Category: risk.Category,
+                                    Risk_Rating: risk.Risk_Rating,
+                                    Control_ID: control.Control_ID,
+                                    Control_Description: control.Description,
+                                    Control_Type: control.Type,
+                                    Control_Owner: control.Owner,
+                                    Control_Frequency: control.Frequency
+                                });
+                            }
+                        });
+                    } else {
+                        // Control gap
+                        this.rcm.push({
+                            Risk_ID: risk.Risk_ID,
+                            Risk_Description: risk.Risk_Event,
+                            Risk_Category: risk.Category,
+                            Risk_Rating: risk.Risk_Rating,
+                            Control_ID: 'NO CONTROL',
+                            Control_Description: 'Control Gap Identified',
+                            Control_Type: 'N/A',
+                            Control_Owner: 'TBD',
+                            Control_Frequency: 'N/A'
+                        });
+                    }
+                });
+                this.saveToStorage();
+                updateWorkflowProgress(3);
+                return this.rcm;
+            }
+
+            generateAuditProcedures() {
+                this.auditProgram = [];
+                let procNum = 1;
+
+                const sampleSizes = {
+                    'Critical': '30-40',
+                    'High': '25-30',
+                    'Medium': '15-25',
+                    'Low': '10-15'
+                };
+
+                this.rcm.forEach(entry => {
+                    if (entry.Control_ID !== 'NO CONTROL') {
+                        // Design effectiveness
+                        this.auditProgram.push({
+                            Procedure_ID: `AP-${String(procNum).padStart(3, '0')}`,
+                            Objective: 'Design Effectiveness',
+                            Procedure: `Review and evaluate the design of ${entry.Control_ID}: ${entry.Control_Description}`,
+                            Control_Tested: entry.Control_ID,
+                            Risk_Addressed: entry.Risk_ID,
+                            Test_Type: 'Inquiry and Inspection',
+                            Sample_Size: 'N/A'
+                        });
+                        procNum++;
+
+                        // Operating effectiveness
+                        this.auditProgram.push({
+                            Procedure_ID: `AP-${String(procNum).padStart(3, '0')}`,
+                            Objective: 'Operating Effectiveness',
+                            Procedure: `Test operating effectiveness of ${entry.Control_ID} by examining sample transactions`,
+                            Control_Tested: entry.Control_ID,
+                            Risk_Addressed: entry.Risk_ID,
+                            Test_Type: 'Sample Testing',
+                            Sample_Size: sampleSizes[entry.Risk_Rating] || '15-25'
+                        });
+                        procNum++;
+                    }
+                });
+
+                this.saveToStorage();
+                updateWorkflowProgress(4);
+                return this.auditProgram;
+            }
+
+            generatePOLFromGaps() {
+                this.pol = [];
+                let obsNum = 1;
+
+                // Generate from control gaps
+                const gaps = this.rcm.filter(entry => entry.Control_ID === 'NO CONTROL');
+                gaps.forEach(gap => {
+                    this.pol.push({
+                        Observation_ID: `OBS-${String(obsNum).padStart(3, '0')}`,
+                        Source: 'RCM Control Gap',
+                        Title: `Control Gap: ${gap.Risk_Description.substring(0, 50)}...`,
+                        Condition: 'No control exists to mitigate identified risk',
+                        Criteria: 'Risk should be mitigated by appropriate controls',
+                        Cause: 'Control design gap',
+                        Effect: `Unmitigated ${gap.Risk_Rating} risk`,
+                        Risk_Rating: gap.Risk_Rating,
+                        Recommendation: `Implement control to address: ${gap.Risk_Description}`,
+                        Status: 'Potential',
+                        Management_Response: '',
+                        Evidence_Reference: ''
+                    });
+                    obsNum++;
+                });
+
+                this.saveToStorage();
+                updateWorkflowProgress(5);
+                return this.pol;
+            }
+
+            updateObservationStatus(obsId, status, response = '', evidence = '') {
+                const obs = this.pol.find(o => o.Observation_ID === obsId);
+                if (obs) {
+                    obs.Status = status;
+                    obs.Management_Response = response;
+                    obs.Evidence_Reference = evidence;
+                    this.saveToStorage();
+                }
+            }
+        }
+
+        // Initialize Data Manager
+        const dataManager = new DataFlowManager();
+
+        // ===============================
+        // WORKFLOW PROGRESS
+        // ===============================
+        function updateWorkflowProgress(step) {
+            for (let i = 1; i <= 5; i++) {
+                const stepEl = document.getElementById(`step${i}`);
+                stepEl.classList.remove('active', 'completed');
+                if (i < step) {
+                    stepEl.classList.add('completed');
+                } else if (i === step) {
+                    stepEl.classList.add('active');
+                }
+            }
+        }
+
+        // ===============================
+        // FILE UPLOAD HANDLERS
+        // ===============================
+        document.getElementById('riskFileInput').addEventListener('change', handleRiskFileUpload);
+        document.getElementById('controlsFileInput').addEventListener('change', handleControlsFileUpload);
+
+        function handleRiskFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    let data;
+                    if (file.name.endsWith('.json')) {
+                        data = JSON.parse(e.target.result);
+                    } else if (file.name.endsWith('.csv')) {
+                        data = parseCSV(e.target.result);
+                    } else if (file.name.endsWith('.xlsx')) {
+                        const workbook = XLSX.read(e.target.result, { type: 'binary' });
+                        const sheetName = workbook.SheetNames[0];
+                        data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+                    }
+
+                    dataManager.risks = [];
+                    dataManager.addRisks(data);
+
+                    document.getElementById('riskFileInfo').textContent = `✓ Loaded ${data.length} risks from ${file.name}`;
+                    document.getElementById('riskFileInfo').classList.remove('hidden');
+
+                    updateStats();
+                    showRisksTable();
+                } catch (error) {
+                    alert('Error parsing file: ' + error.message);
+                }
+            };
+
+            if (file.name.endsWith('.xlsx')) {
+                reader.readAsBinaryString(file);
+            } else {
+                reader.readAsText(file);
+            }
+        }
+
+        function handleControlsFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    let data;
+                    if (file.name.endsWith('.json')) {
+                        data = JSON.parse(e.target.result);
+                    } else if (file.name.endsWith('.csv')) {
+                        data = parseCSV(e.target.result);
+                    } else if (file.name.endsWith('.xlsx')) {
+                        const workbook = XLSX.read(e.target.result, { type: 'binary' });
+                        const sheetName = workbook.SheetNames[0];
+                        data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+                    }
+
+                    dataManager.controls = [];
+                    dataManager.addControls(data);
+
+                    document.getElementById('controlsFileInfo').textContent = `✓ Loaded ${data.length} controls from ${file.name}`;
+                    document.getElementById('controlsFileInfo').classList.remove('hidden');
+
+                    updateStats();
+                    showControlsTable();
+                } catch (error) {
+                    alert('Error parsing file: ' + error.message);
+                }
+            };
+
+            if (file.name.endsWith('.xlsx')) {
+                reader.readAsBinaryString(file);
+            } else {
+                reader.readAsText(file);
+            }
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim());
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(v => v.trim());
+                const obj = {};
+                headers.forEach((header, index) => {
+                    obj[header] = values[index];
+                });
+                data.push(obj);
+            }
+
+            return data;
+        }
+
+        // ===============================
+        // SAMPLE DATA LOADERS
+        // ===============================
+        function loadSampleRisks() {
+            const sampleRisks = [
+                { Risk_ID: 'RISK-001', Risk_Event: 'Unauthorized purchases', Category: 'Operational', Likelihood: 'Possible', Impact: 'Major', Description: 'Purchases made without proper authorization' },
+                { Risk_ID: 'RISK-002', Risk_Event: 'Duplicate payments', Category: 'Financial', Likelihood: 'Unlikely', Impact: 'Moderate', Description: 'Invoice paid multiple times' },
+                { Risk_ID: 'RISK-003', Risk_Event: 'Vendor fraud', Category: 'Financial', Likelihood: 'Possible', Impact: 'Catastrophic', Description: 'Fictitious vendors or inflated invoices' },
+                { Risk_ID: 'RISK-004', Risk_Event: 'Data breach', Category: 'IT Security', Likelihood: 'Likely', Impact: 'Major', Description: 'Unauthorized access to sensitive data' },
+                { Risk_ID: 'RISK-005', Risk_Event: 'Non-compliance with regulations', Category: 'Compliance', Likelihood: 'Possible', Impact: 'Major', Description: 'Failed to meet regulatory requirements' },
+                { Risk_ID: 'RISK-006', Risk_Event: 'System downtime', Category: 'IT Operations', Likelihood: 'Likely', Impact: 'Moderate', Description: 'Critical system unavailable' },
+                { Risk_ID: 'RISK-007', Risk_Event: 'Inventory theft', Category: 'Operational', Likelihood: 'Possible', Impact: 'Minor', Description: 'Physical inventory stolen' },
+                { Risk_ID: 'RISK-008', Risk_Event: 'Segregation of duties violation', Category: 'Operational', Likelihood: 'Likely', Impact: 'Major', Description: 'Same person can initiate and approve transactions' }
+            ];
+
+            dataManager.risks = [];
+            dataManager.addRisks(sampleRisks);
+            updateStats();
+            showRisksTable();
+            document.getElementById('riskFileInfo').textContent = `✓ Loaded ${sampleRisks.length} sample risks`;
+            document.getElementById('riskFileInfo').classList.remove('hidden');
+        }
+
+        function loadSampleControls() {
+            const sampleControls = [
+                { Control_ID: 'CTRL-001', Description: 'System approval workflow for purchases above $10,000', Type: 'Preventive', Owner: 'Procurement Manager', Frequency: 'Continuous' },
+                { Control_ID: 'CTRL-002', Description: '3-way match (PO, GRN, Invoice) before payment', Type: 'Detective', Owner: 'AP Manager', Frequency: 'Per transaction' },
+                { Control_ID: 'CTRL-003', Description: 'Vendor master file review and approval', Type: 'Preventive', Owner: 'Vendor Management', Frequency: 'Quarterly' },
+                { Control_ID: 'CTRL-004', Description: 'Multi-factor authentication for system access', Type: 'Preventive', Owner: 'IT Security', Frequency: 'Continuous' },
+                { Control_ID: 'CTRL-005', Description: 'Compliance checklist review', Type: 'Detective', Owner: 'Compliance Officer', Frequency: 'Monthly' },
+                { Control_ID: 'CTRL-006', Description: 'System backup and disaster recovery procedures', Type: 'Corrective', Owner: 'IT Operations', Frequency: 'Daily' }
+            ];
+
+            dataManager.controls = [];
+            dataManager.addControls(sampleControls);
+            updateStats();
+            showControlsTable();
+            document.getElementById('controlsFileInfo').textContent = `✓ Loaded ${sampleControls.length} sample controls`;
+            document.getElementById('controlsFileInfo').classList.remove('hidden');
+        }
+
+        // ===============================
+        // DISPLAY FUNCTIONS
+        // ===============================
+        function showRisksTable() {
+            const tbody = document.getElementById('risksTableBody');
+            tbody.innerHTML = '';
+
+            dataManager.risks.forEach(risk => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td><strong>${risk.Risk_ID}</strong></td>
+                    <td>${risk.Risk_Event}</td>
+                    <td>${risk.Category}</td>
+                    <td>${risk.Likelihood}</td>
+                    <td>${risk.Impact}</td>
+                    <td>${risk.Risk_Score}</td>
+                    <td><span class="badge badge-${risk.Risk_Rating.toLowerCase()}">${risk.Risk_Rating}</span></td>
+                `;
+            });
+
+            document.getElementById('risksTableContainer').classList.remove('hidden');
+            populateMappingLists();
+        }
+
+        function showControlsTable() {
+            const tbody = document.getElementById('controlsTableBody');
+            tbody.innerHTML = '';
+
+            dataManager.controls.forEach(control => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td><strong>${control.Control_ID}</strong></td>
+                    <td>${control.Description}</td>
+                    <td><span class="badge badge-low">${control.Type}</span></td>
+                    <td>${control.Owner}</td>
+                    <td>${control.Frequency}</td>
+                `;
+            });
+
+            document.getElementById('controlsTableContainer').classList.remove('hidden');
+            populateMappingLists();
+        }
+
+        function updateStats() {
+            document.getElementById('riskCount').textContent = dataManager.risks.length;
+            const highRisks = dataManager.risks.filter(r => r.Risk_Rating === 'High' || r.Risk_Rating === 'Critical').length;
+            document.getElementById('highRiskCount').textContent = highRisks;
+            document.getElementById('controlCount').textContent = dataManager.controls.length;
+        }
+
+        // ===============================
+        // RCM MAPPING
+        // ===============================
+        let selectedRisk = null;
+        let selectedControls = [];
+
+        function populateMappingLists() {
+            const riskList = document.getElementById('riskMappingList');
+            const controlList = document.getElementById('controlMappingList');
+
+            riskList.innerHTML = '';
+            dataManager.risks.forEach(risk => {
+                const div = document.createElement('div');
+                div.className = 'mapping-item';
+                div.innerHTML = `<strong>${risk.Risk_ID}</strong><br>${risk.Risk_Event.substring(0, 60)}...`;
+                div.onclick = () => selectRisk(risk.Risk_ID, div);
+                riskList.appendChild(div);
+            });
+
+            controlList.innerHTML = '';
+            dataManager.controls.forEach(control => {
+                const div = document.createElement('div');
+                div.className = 'mapping-item';
+                div.innerHTML = `<strong>${control.Control_ID}</strong><br>${control.Description.substring(0, 60)}...`;
+                div.onclick = () => selectControl(control.Control_ID, div);
+                controlList.appendChild(div);
+            });
+        }
+
+        function selectRisk(riskId, element) {
+            document.querySelectorAll('#riskMappingList .mapping-item').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedRisk = riskId;
+        }
+
+        function selectControl(controlId, element) {
+            if (selectedControls.includes(controlId)) {
+                selectedControls = selectedControls.filter(id => id !== controlId);
+                element.classList.remove('selected');
+            } else {
+                selectedControls.push(controlId);
+                element.classList.add('selected');
+            }
+        }
+
+        function mapControlToRisk() {
+            if (!selectedRisk) {
+                alert('Please select a risk first');
+                return;
+            }
+            if (selectedControls.length === 0) {
+                alert('Please select at least one control');
+                return;
+            }
+
+            dataManager.mapRiskToControl(selectedRisk, selectedControls);
+            alert(`Mapped ${selectedControls.length} control(s) to ${selectedRisk}`);
+
+            // Clear selections
+            document.querySelectorAll('.mapping-item').forEach(el => el.classList.remove('selected'));
+            selectedRisk = null;
+            selectedControls = [];
+        }
+
+        function autoMapControls() {
+            // Simple auto-mapping based on keywords
+            dataManager.risks.forEach(risk => {
+                const riskText = (risk.Risk_Event + ' ' + risk.Category).toLowerCase();
+
+                dataManager.controls.forEach(control => {
+                    const controlText = control.Description.toLowerCase();
+
+                    // Simple keyword matching
+                    if (riskText.includes('purchase') && controlText.includes('purchase')) {
+                        dataManager.mapRiskToControl(risk.Risk_ID, [control.Control_ID]);
+                    } else if (riskText.includes('payment') && controlText.includes('payment')) {
+                        dataManager.mapRiskToControl(risk.Risk_ID, [control.Control_ID]);
+                    } else if (riskText.includes('data') && controlText.includes('auth')) {
+                        dataManager.mapRiskToControl(risk.Risk_ID, [control.Control_ID]);
+                    } else if (riskText.includes('compliance') && controlText.includes('compliance')) {
+                        dataManager.mapRiskToControl(risk.Risk_ID, [control.Control_ID]);
+                    } else if (riskText.includes('system') && controlText.includes('system')) {
+                        dataManager.mapRiskToControl(risk.Risk_ID, [control.Control_ID]);
+                    }
+                });
+            });
+
+            alert('Auto-mapping completed based on keywords');
+        }
+
+        function generateRCM() {
+            const rcmData = dataManager.generateRCMEntries();
+
+            const tbody = document.getElementById('rcmTableBody');
+            tbody.innerHTML = '';
+
+            rcmData.forEach(entry => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td><strong>${entry.Risk_ID}</strong></td>
+                    <td>${entry.Risk_Description}</td>
+                    <td><span class="badge badge-${entry.Risk_Rating.toLowerCase()}">${entry.Risk_Rating}</span></td>
+                    <td><strong>${entry.Control_ID}</strong></td>
+                    <td>${entry.Control_Description}</td>
+                    <td>${entry.Control_Type}</td>
+                    <td>${entry.Control_Owner}</td>
+                `;
+            });
+
+            document.getElementById('rcmTableContainer').classList.remove('hidden');
+
+            // Update stats
+            const mappedRisks = new Set(rcmData.filter(e => e.Control_ID !== 'NO CONTROL').map(e => e.Risk_ID)).size;
+            const gaps = rcmData.filter(e => e.Control_ID === 'NO CONTROL').length;
+            document.getElementById('mappedRisks').textContent = mappedRisks;
+            document.getElementById('controlGaps').textContent = gaps;
+
+            alert(`RCM generated with ${rcmData.length} entries (${gaps} control gaps identified)`);
+        }
+
+        // ===============================
+        // AUDIT PROGRAM GENERATION
+        // ===============================
+        function generateAuditProgram() {
+            if (dataManager.rcm.length === 0) {
+                alert('Please generate RCM first');
+                return;
+            }
+
+            const procedures = dataManager.generateAuditProcedures();
+
+            const tbody = document.getElementById('auditProgramBody');
+            tbody.innerHTML = '';
+
+            procedures.forEach(proc => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td><strong>${proc.Procedure_ID}</strong></td>
+                    <td>${proc.Objective}</td>
+                    <td>${proc.Control_Tested}</td>
+                    <td>${proc.Risk_Addressed}</td>
+                    <td>${proc.Test_Type}</td>
+                    <td>${proc.Sample_Size}</td>
+                `;
+            });
+
+            document.getElementById('auditProgramContainer').classList.remove('hidden');
+            document.getElementById('procedureCount').textContent = procedures.length;
+
+            alert(`Generated ${procedures.length} audit procedures`);
+        }
+
+        // ===============================
+        // POL GENERATION
+        // ===============================
+        function generatePOL() {
+            if (dataManager.rcm.length === 0) {
+                alert('Please generate RCM first');
+                return;
+            }
+
+            const observations = dataManager.generatePOLFromGaps();
+
+            const tbody = document.getElementById('polBody');
+            tbody.innerHTML = '';
+
+            observations.forEach(obs => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td><strong>${obs.Observation_ID}</strong></td>
+                    <td>${obs.Title}</td>
+                    <td><span class="badge badge-${obs.Risk_Rating.toLowerCase()}">${obs.Risk_Rating}</span></td>
+                    <td>${obs.Condition}</td>
+                    <td>${obs.Recommendation}</td>
+                    <td><span class="badge badge-${obs.Status.toLowerCase()}">${obs.Status}</span></td>
+                    <td>
+                        <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" 
+                                onclick="validateObservation('${obs.Observation_ID}')">Validate</button>
+                    </td>
+                `;
+            });
+
+            document.getElementById('polContainer').classList.remove('hidden');
+            document.getElementById('totalObservations').textContent = observations.length;
+            document.getElementById('confirmedFindings').textContent = observations.filter(o => o.Status === 'Confirmed').length;
+
+            alert(`Generated ${observations.length} potential observations from control gaps`);
+        }
+
+        function validateObservation(obsId) {
+            const response = prompt(`Enter management response for ${obsId}:`);
+            if (response) {
+                dataManager.updateObservationStatus(obsId, 'Confirmed', response, 'Evidence reviewed');
+                generatePOL(); // Refresh display
+                alert(`Observation ${obsId} validated and marked as Confirmed`);
+            }
+        }
+
+        // ===============================
+        // EXPORT FUNCTIONS
+        // ===============================
+        function exportRCM() {
+            if (dataManager.rcm.length === 0) {
+                alert('Please generate RCM first');
+                return;
+            }
+
+            const ws = XLSX.utils.json_to_sheet(dataManager.rcm);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'RCM');
+            XLSX.writeFile(wb, 'RCM_Export.xlsx');
+        }
+
+        function exportAuditProgram() {
+            if (dataManager.auditProgram.length === 0) {
+                alert('Please generate Audit Program first');
+                return;
+            }
+
+            const ws = XLSX.utils.json_to_sheet(dataManager.auditProgram);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Audit Program');
+            XLSX.writeFile(wb, 'Audit_Program_Export.xlsx');
+        }
+
+        function exportPOL() {
+            if (dataManager.pol.length === 0) {
+                alert('Please generate POL first');
+                return;
+            }
+
+            const ws = XLSX.utils.json_to_sheet(dataManager.pol);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'POL');
+            XLSX.writeFile(wb, 'POL_Export.xlsx');
+        }
+
+        function exportCompleteWorkbook() {
+            const wb = XLSX.utils.book_new();
+
+            if (dataManager.risks.length > 0) {
+                const wsRisks = XLSX.utils.json_to_sheet(dataManager.risks);
+                XLSX.utils.book_append_sheet(wb, wsRisks, 'Risks');
+            }
+
+            if (dataManager.controls.length > 0) {
+                const wsControls = XLSX.utils.json_to_sheet(dataManager.controls);
+                XLSX.utils.book_append_sheet(wb, wsControls, 'Controls');
+            }
+
+            if (dataManager.rcm.length > 0) {
+                const wsRCM = XLSX.utils.json_to_sheet(dataManager.rcm);
+                XLSX.utils.book_append_sheet(wb, wsRCM, 'RCM');
+            }
+
+            if (dataManager.auditProgram.length > 0) {
+                const wsAP = XLSX.utils.json_to_sheet(dataManager.auditProgram);
+                XLSX.utils.book_append_sheet(wb, wsAP, 'Audit Program');
+            }
+
+            if (dataManager.pol.length > 0) {
+                const wsPOL = XLSX.utils.json_to_sheet(dataManager.pol);
+                XLSX.utils.book_append_sheet(wb, wsPOL, 'POL');
+            }
+
+            XLSX.writeFile(wb, 'ERM_Complete_Export.xlsx');
+        }
+
+        function exportAllData() {
+            const allData = {
+                risks: dataManager.risks,
+                controls: dataManager.controls,
+                rcm: dataManager.rcm,
+                auditProgram: dataManager.auditProgram,
+                pol: dataManager.pol,
+                mappings: dataManager.riskControlMappings
+            };
+
+            const dataStr = JSON.stringify(allData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'ERM_Project_Export.json';
+            link.click();
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+                dataManager.clearAll();
+                location.reload();
+            }
+        }
+
+        // Initialize on load
+        window.onload = function () {
+            updateStats();
+            if (dataManager.risks.length > 0) {
+                showRisksTable();
+                updateWorkflowProgress(1);
+            }
+            if (dataManager.controls.length > 0) {
+                showControlsTable();
+                updateWorkflowProgress(2);
+            }
+            if (dataManager.rcm.length > 0) {
+                generateRCM();
+                updateWorkflowProgress(3);
+            }
+        };
+    </script>
+</body>
+
+</html>

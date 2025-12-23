@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Risk Management (ERM) - Multi-Format Import</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- External Libraries -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+    <script>
+        // Configure PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        // Initialize Mermaid
+        mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+    </script>
+
+    <style>
+        /* Reuse all styles from index_integrated.html */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--gray-100);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(6, 182, 212, 0.1));
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .section {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section h2 {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .format-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .format-card {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .format-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .format-card h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .format-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        label {
+            color: var(--gray-300);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            margin-right: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fcd34d;
+        }
+
+        .preview-container {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--secondary);
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 8px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+        }
+
+        .data-table th {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-supported {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+
+        .badge-limited {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+        }
+
+        .mermaid-preview {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 Multi-Format File Import Demo</h1>
+            <p>Test PDF, Word, Image OCR, and Mermaid diagram parsing capabilities</p>
+        </div>
+
+        <!-- Supported Formats Overview -->
+        <div class="section">
+            <h2>📁 Supported File Formats</h2>
+            <div class="format-grid">
+                <div class="format-card">
+                    <div class="format-icon">📄</div>
+                    <h3>PDF Documents <span class="badge badge-supported">Supported</span></h3>
+                    <p>Extract text from PDF reports and risk assessments using PDF.js</p>
+                </div>
+                <div class="format-card">
+                    <div class="format-icon">📝</div>
+                    <h3>Word Documents <span class="badge badge-supported">Supported</span></h3>
+                    <p>Extract text from .docx files using Mammoth.js</p>
+                </div>
+                <div class="format-card">
+                    <div class="format-icon">🖼️</div>
+                    <h3>Images (OCR) <span class="badge badge-supported">Supported</span></h3>
+                    <p>Extract text from scanned documents using Tesseract.js (may be slow)</p>
+                </div>
+                <div class="format-card">
+                    <div class="format-icon">📊</div>
+                    <h3>Mermaid Diagrams <span class="badge badge-supported">Supported</span></h3>
+                    <p>Parse and render process flow diagrams from Mermaid code</p>
+                </div>
+                <div class="format-card">
+                    <div class="format-icon">📑</div>
+                    <h3>Excel & CSV <span class="badge badge-supported">Supported</span></h3>
+                    <p>Structured data import (already implemented)</p>
+                </div>
+                <div class="format-card">
+                    <div class="format-icon">📽️</div>
+                    <h3>PowerPoint <span class="badge badge-limited">Limited</span></h3>
+                    <p>No browser library - recommend export to PDF</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PDF Parsing Demo -->
+        <div class="section">
+            <h2>📄 PDF Document Parser</h2>
+            <div class="alert alert-info">
+                Upload a PDF containing risk data or control documentation. Text will be extracted and displayed.
+            </div>
+
+            <label>Upload PDF Document:</label>
+            <input type="file" id="pdfInput" accept=".pdf">
+
+            <div id="pdfStatus"></div>
+            <div id="pdfPreview" class="preview-container" style="display:none;"></div>
+
+            <button class="btn btn-success" onclick="extractRisksFromPDF()" id="extractPdfBtn" style="display:none;">
+                Extract Risk Data from Text
+            </button>
+        </div>
+
+        <!-- Word Document Parser -->
+        <div class="section">
+            <h2>📝 Word Document Parser</h2>
+            <div class="alert alert-info">
+                Upload a .docx file containing control narratives or process descriptions.
+            </div>
+
+            <label>Upload Word Document (.docx):</label>
+            <input type="file" id="wordInput" accept=".docx">
+
+            <div id="wordStatus"></div>
+            <div id="wordPreview" class="preview-container" style="display:none;"></div>
+
+            <button class="btn btn-success" onclick="extractControlsFromWord()" id="extractWordBtn"
+                style="display:none;">
+                Extract Control Information
+            </button>
+        </div>
+
+        <!-- Image OCR Demo -->
+        <div class="section">
+            <h2>🖼️ Image OCR (Optical Character Recognition)</h2>
+            <div class="alert alert-warning">
+                ⚠️ OCR processing can be slow (10-30 seconds per page). Best for clean, high-contrast scanned documents.
+            </div>
+
+            <label>Upload Image (PNG, JPEG):</label>
+            <input type="file" id="imageInput" accept=".png,.jpg,.jpeg">
+
+            <div id="ocrStatus"></div>
+            <div id="ocrPreview" class="preview-container" style="display:none;"></div>
+        </div>
+
+        <!-- Mermaid Diagram Parser -->
+        <div class="section">
+            <h2>📊 Mermaid Process Flow Parser</h2>
+            <div class="alert alert-info">
+                Paste Mermaid flowchart code to extract process steps and control points.
+            </div>
+
+            <label>Paste Mermaid Diagram Code:</label>
+            <textarea id="mermaidInput" rows="10" placeholder="flowchart LR
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Process]
+    B -->|No| D[End]">flowchart LR
+    A[Purchase Request] --> B{Manager Approval}
+    B -->|Approved| C[Create PO]
+    B -->|Rejected| D[Reject Request]
+    C --> E[Vendor Delivers]
+    E --> F{3-Way Match}
+    F -->|Pass| G[Process Payment]
+    F -->|Fail| H[Investigate]</textarea>
+
+            <button class="btn" onclick="parseMermaidDiagram()">Parse & Render Diagram</button>
+            <button class="btn btn-success" onclick="extractProcessSteps()">Extract Process Steps</button>
+
+            <div id="mermaidStatus"></div>
+            <div id="mermaidRender" class="mermaid-preview" style="display:none;"></div>
+            <div id="mermaidExtracted" style="display:none; margin-top: 1rem;"></div>
+        </div>
+
+        <!-- Extracted Data Summary -->
+        <div class="section">
+            <h2>📊 Extracted Data Summary</h2>
+            <div id="extractedSummary">
+                <p style="color: var(--gray-300);">No data extracted yet. Upload files above to begin.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let extractedText = {
+            pdf: '',
+            word: '',
+            ocr: '',
+            mermaid: ''
+        };
+
+        // ===============================
+        // PDF PARSER
+        // ===============================
+        document.getElementById('pdfInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const statusDiv = document.getElementById('pdfStatus');
+            statusDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading PDF...</p></div>';
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+
+                let fullText = '';
+                statusDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Extracting text from ' + pdf.numPages + ' pages...</p></div>';
+
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += `\n--- Page ${i} ---\n${pageText}\n`;
+                }
+
+                extractedText.pdf = fullText;
+
+                document.getElementById('pdfPreview').textContent = fullText;
+                document.getElementById('pdfPreview').style.display = 'block';
+                document.getElementById('extractPdfBtn').style.display = 'inline-block';
+
+                statusDiv.innerHTML = `<div class="alert alert-success">✓ Successfully extracted text from ${pdf.numPages} pages</div>`;
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="alert alert-warning">Error: ${error.message}</div>`;
+            }
+        });
+
+        function extractRisksFromPDF() {
+            const text = extractedText.pdf;
+            if (!text) return;
+
+            // Pattern matching for risk data
+            const riskIdPattern = /Risk[\s\-_]?ID[\s:]*([\w\-]+)/gi;
+            const likelihoodPattern = /(Rare|Unlikely|Possible|Likely|Almost\s*Certain)/gi;
+            const impactPattern = /(Insignificant|Minor|Moderate|Major|Catastrophic)/gi;
+
+            const riskIds = [...text.matchAll(riskIdPattern)].map(m => m[1]);
+            const likelihoods = [...text.matchAll(likelihoodPattern)].map(m => m[1]);
+            const impacts = [...text.matchAll(impactPattern)].map(m => m[1]);
+
+            let html = '<h3>Extracted Risk Elements:</h3>';
+            html += `<table class="data-table">
+                <tr><th>Element</th><th>Count</th><th>Values</th></tr>
+                <tr><td>Risk IDs</td><td>${riskIds.length}</td><td>${riskIds.slice(0, 5).join(', ')}...</td></tr>
+                <tr><td>Likelihood Values</td><td>${likelihoods.length}</td><td>${likelihoods.slice(0, 5).join(', ')}...</td></tr>
+                <tr><td>Impact Values</td><td>${impacts.length}</td><td>${impacts.slice(0, 5).join(', ')}...</td></tr>
+            </table>`;
+            html += '<p style="margin-top:1rem; color: var(--gray-300);">Tip: For structured import, ensure PDF text follows: Risk_ID, Likelihood, Impact pattern</p>';
+
+            document.getElementById('pdfPreview').innerHTML = html;
+        }
+
+        // ===============================
+        // WORD DOCUMENT PARSER
+        // ===============================
+        document.getElementById('wordInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const statusDiv = document.getElementById('wordStatus');
+            statusDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading Word document...</p></div>';
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer });
+
+                extractedText.word = result.value;
+
+                document.getElementById('wordPreview').textContent = result.value;
+                document.getElementById('wordPreview').style.display = 'block';
+                document.getElementById('extractWordBtn').style.display = 'inline-block';
+
+                const wordCount = result.value.split(/\s+/).length;
+                statusDiv.innerHTML = `<div class="alert alert-success">✓ Successfully extracted ${wordCount} words</div>`;
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="alert alert-warning">Error: ${error.message}</div>`;
+            }
+        });
+
+        function extractControlsFromWord() {
+            const text = extractedText.word;
+            if (!text) return;
+
+            // Extract control-related patterns
+            const controlIdPattern = /Control[\s\-_]?ID[\s:]*([\w\-]+)/gi;
+            const controlTypePattern = /(Preventive|Detective|Corrective)/gi;
+
+            // Extract numbered lists as potential process steps
+            const numberedSteps = text.match(/^\d+[\.\)]\s+.+$/gm) || [];
+
+            const controlIds = [...text.matchAll(controlIdPattern)].map(m => m[1]);
+            const controlTypes = [...text.matchAll(controlTypePattern)].map(m => m[1]);
+
+            let html = '<h3>Extracted Control Elements:</h3>';
+            html += `<table class="data-table">
+                <tr><th>Element</th><th>Count</th><th>Sample Values</th></tr>
+                <tr><td>Control IDs</td><td>${controlIds.length}</td><td>${controlIds.slice(0, 3).join(', ')}</td></tr>
+                <tr><td>Control Types</td><td>${controlTypes.length}</td><td>${controlTypes.slice(0, 3).join(', ')}</td></tr>
+                <tr><td>Process Steps (numbered)</td><td>${numberedSteps.length}</td><td>${numberedSteps.slice(0, 2).join('<br>')}</td></tr>
+            </table>`;
+
+            document.getElementById('wordPreview').innerHTML = html;
+        }
+
+        // ===============================
+        // IMAGE OCR
+        // ===============================
+        document.getElementById('imageInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const statusDiv = document.getElementById('ocrStatus');
+            statusDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Performing OCR... This may take 10-30 seconds...</p></div>';
+
+            try {
+                const { data: { text } } = await Tesseract.recognize(file, 'eng', {
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            statusDiv.innerHTML = `<div class="loading"><div class="spinner"></div><p>OCR Progress: ${Math.round(m.progress * 100)}%</p></div>`;
+                        }
+                    }
+                });
+
+                extractedText.ocr = text;
+
+                document.getElementById('ocrPreview').textContent = text;
+                document.getElementById('ocrPreview').style.display = 'block';
+
+                const wordCount = text.split(/\s+/).length;
+                statusDiv.innerHTML = `<div class="alert alert-success">✓ OCR completed. Extracted ${wordCount} words</div>`;
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="alert alert-warning">Error: ${error.message}</div>`;
+            }
+        });
+
+        // ===============================
+        // MERMAID PARSER
+        // ===============================
+        async function parseMermaidDiagram() {
+            const mermaidCode = document.getElementById('mermaidInput').value;
+            if (!mermaidCode) return;
+
+            const renderDiv = document.getElementById('mermaidRender');
+            const statusDiv = document.getElementById('mermaidStatus');
+
+            try {
+                renderDiv.innerHTML = '<div class="loading"><p>Rendering diagram...</p></div>';
+                renderDiv.style.display = 'block';
+
+                const { svg } = await mermaid.render('mermaidDiagram', mermaidCode);
+                renderDiv.innerHTML = svg;
+
+                extractedText.mermaid = mermaidCode;
+                statusDiv.innerHTML = '<div class="alert alert-success">✓ Diagram rendered successfully</div>';
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="alert alert-warning">Error: ${error.message}</div>`;
+            }
+        }
+
+        function extractProcessSteps() {
+            const mermaidCode = document.getElementById('mermaidInput').value;
+            if (!mermaidCode) return;
+
+            // Parse Mermaid code for nodes
+            const nodePattern = /([A-Z])\[([^\]]+)\]/g;
+            const decisionPattern = /([A-Z]){([^}]+)}/g;
+            const edgePattern = /([A-Z])\s*-->\s*\|? ([^\|] +) ?\|?\s * ([A - Z]) / g;
+
+            const nodes = [...mermaidCode.matchAll(nodePattern)];
+            const decisions = [...mermaidCode.matchAll(decisionPattern)];
+            const edges = [...mermaidCode.matchAll(edgePattern)];
+
+            let html = '<h3>Extracted Process Elements:</h3>';
+            html += '<table class="data-table">';
+            html += '<tr><th>Type</th><th>ID</th><th>Description/Condition</th></tr>';
+
+            nodes.forEach(([_, id, label]) => {
+                html += `<tr><td><span class="badge badge-supported">Step</span></td><td>${id}</td><td>${label}</td></tr>`;
+            });
+
+            decisions.forEach(([_, id, label]) => {
+                html += `<tr><td><span class="badge badge-limited">Control Point</span></td><td>${id}</td><td>${label}</td></tr>`;
+            });
+
+            html += '</table>';
+
+            html += '<h4 style="margin-top: 1rem;">Process Flow:</h4><ul>';
+            edges.forEach(([_, from, label, to]) => {
+                html += `<li>${from} → ${to}${label ? ' (' + label + ')' : ''}</li>`;
+            });
+            html += '</ul>';
+
+            document.getElementById('mermaidExtracted').innerHTML = html;
+            document.getElementById('mermaidExtracted').style.display = 'block';
+        }
+
+        // Update summary
+        setInterval(() => {
+            const counts = {
+                pdf: extractedText.pdf.length,
+                word: extractedText.word.length,
+                ocr: extractedText.ocr.length,
+                mermaid: extractedText.mermaid.length
+            };
+
+            const total = Object.values(counts).reduce((a, b) => a + b, 0);
+
+            if (total > 0) {
+                let html = '<table class="data-table">';
+                html += '<tr><th>Source</th><th>Characters Extracted</th></tr>';
+                if (counts.pdf > 0) html += `<tr><td>PDF</td><td>${counts.pdf.toLocaleString()}</td></tr>`;
+                if (counts.word > 0) html += `<tr><td>Word</td><td>${counts.word.toLocaleString()}</td></tr>`;
+                if (counts.ocr > 0) html += `<tr><td>OCR</td><td>${counts.ocr.toLocaleString()}</td></tr>`;
+                if (counts.mermaid > 0) html += `<tr><td>Mermaid</td><td>${counts.mermaid.toLocaleString()}</td></tr>`;
+                html += `<tr><td><strong>Total</strong></td><td><strong>${total.toLocaleString()}</strong></td></tr>`;
+                html += '</table>';
+
+                document.getElementById('extractedSummary').innerHTML = html;
+            }
+        }, 2000);
+    </script>
+</body>
+
+</html>

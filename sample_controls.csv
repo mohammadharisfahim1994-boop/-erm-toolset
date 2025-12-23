@@ -1,0 +1,9 @@
+Control_ID,Description,Type,Owner,Frequency
+CTRL-001,System approval workflow for purchases above $10000,Preventive,Procurement Manager,Continuous
+CTRL-002,3-way match (PO GRN Invoice) before payment,Detective,AP Manager,Per transaction
+CTRL-003,Vendor master file review and approval,Preventive,Vendor Management,Quarterly
+CTRL-004,Multi-factor authentication for system access,Preventive,IT Security,Continuous
+CTRL-005,Compliance checklist review,Detective,Compliance Officer,Monthly
+CTRL-006,System backup and disaster recovery procedures,Corrective,IT Operations,Daily
+CTRL-007,Segregation of duties matrix,Preventive,Internal Audit,Quarterly
+CTRL-008,Financial close checklist,Detective,Finance Manager,Monthly
